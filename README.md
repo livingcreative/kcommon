@@ -14,7 +14,7 @@ You could use following headers:
 ### Overview
 
 This header contains common generic functions and types. All functions have comments and almost self-descriptive.
-There are several useful `struct` templates for *point*, *size* and *rectangle* representations. All stuff is declared under `c_util` namepsace.
+There are several useful `struct` templates for *point*, *size* and *rectangle* representations. All stuff is declared under `c_util` namespace.
 
 **pointT<T>** template is intended to represent simple 2D point with `x` and `y` coordinates. Point can be constructed from single value (same for both x and y) or pair of values. Two points can be added or subtracted with each other like 2D vectors. Point can be multiplied or divided by scalar value.
 
@@ -24,6 +24,6 @@ There are several useful `struct` templates for *point*, *size* and *rectangle* 
 
 ### Dependencies
 > To use `equal()` function you should define `abs(value)` function, which returns absolute value.  
-One from <stdlib.h> or <cmath> is suitable, include one of these headers before
+One from &lt;stdlib.h&gt; or &lt;cmath&gt; is suitable, include one of these headers before
 
-> The `rectT<T>::bounds()` function uses `std::numeric_limits`. You should include <limits> in order to use this function.
+> The `rectT<T>::bounds()` function uses `std::numeric_limits`. You should include &lt;limits&gt; in order to use this function.
