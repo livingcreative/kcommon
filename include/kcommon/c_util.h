@@ -12,6 +12,7 @@
 
 
 // not to trash defs with long template declaration
+#define TT template <typename T>
 #define UF template <typename T> inline
 
 
@@ -72,6 +73,52 @@ namespace c_util
     // take value sign only
     //     result is -1 for negative value, 0 for zero and +1 for positive value
     UF T sign(const T value);
+
+
+    /*
+     -------------------------------------------------------------------------------
+     pointT<T>
+     -------------------------------------------------------------------------------
+         2D point template
+         simple struct for 2D point representation with some useful funcs
+            x, y - point coordinates
+    */
+
+    template <typename T>
+    struct pointT
+    {
+        T x;
+        T y;
+
+        // constructors
+        //     for 0 coord point
+        inline pointT();
+        //     same single value for every coord
+        inline pointT(T value);
+        //     individual coordinate values
+        inline pointT(T _x, T _y);
+        //     explicit constructor for quick conversion between different point types
+        template <typename Tx> explicit inline pointT(const pointT<Tx> &point);
+
+        // every day use operators (maybe except * and /)
+        inline pointT<T> operator=(T value);
+        inline bool      operator==(const pointT<T> p) const;
+        inline bool      operator!=(const pointT<T> p) const;
+        inline pointT<T> operator+(const pointT<T> p) const;
+        inline pointT<T> operator-(const pointT<T> p) const;
+        inline pointT<T> operator-() const;
+        inline pointT<T> operator*(const pointT<T> p) const;
+        inline pointT<T> operator/(const pointT<T> p) const;
+
+        // squared distance between two points
+        inline T sqrdist(const pointT<T> &p) const;
+    };
+
+    // most common point types (i think)
+    typedef pointT<float>  CPointF,     *PCPointF;
+    typedef pointT<double> CPointD,     *PCPointD;
+    typedef pointT<int>    CPoint,      *PCPoint;
+    typedef pointT<short>  CSmallPoint, *PCSmallPoint;
 
 
 
@@ -173,7 +220,74 @@ namespace c_util
         return T(0);
     }
 
+
+    // pointT<T> IMPLEMENTATION
+
+    TT pointT<T>::pointT() :
+        x(0), y(0)
+    {}
+
+    TT pointT<T>::pointT(T value) :
+        x(value), y(value)
+    {}
+
+    TT pointT<T>::pointT(T _x, T _y) :
+        x(_x), y(_y)
+    {}
+
+    TT template <typename Tx> pointT<T>::pointT(const pointT<Tx> &point) :
+        x(static_cast<T>(point.x)),
+        y(static_cast<T>(point.y))
+    {}
+
+    TT pointT<T> pointT<T>::operator=(T value)
+    {
+        x = y = value;
+        return *this;
+    }
+
+    TT bool pointT<T>::operator==(const pointT<T> p) const
+    {
+        return x == p.x && y == p.y;
+    }
+
+    TT bool pointT<T>::operator!=(const pointT<T> p) const
+    {
+        return x != p.x || y != p.y;
+    }
+
+    TT pointT<T> pointT<T>::operator+(const pointT<T> p) const
+    {
+        return pointT<T>(x + p.x, y + p.y);
+    }
+
+    TT pointT<T> pointT<T>::operator-(const pointT<T> p) const
+    {
+        return pointT<T>(x - p.x, y - p.y);
+    }
+
+    TT pointT<T> pointT<T>::operator-() const
+    {
+        return pointT<T>(-x, -y);
+    }
+
+    TT pointT<T> pointT<T>::operator*(const pointT<T> p) const
+    {
+        return pointT<T>(x * p.x, y * p.y);
+    }
+
+    TT pointT<T> pointT<T>::operator/(const pointT<T> p) const
+    {
+        return pointT<T>(x / p.x, y / p.y);
+    }
+
+    TT T pointT<T>::sqrdist(const pointT<T> &p) const
+    {
+        return (p.x - x) * (p.y - y);
+    }
+
 } // namespace c_util
 
 // undefine internally used macro
 #undef UF
+#undef TT
