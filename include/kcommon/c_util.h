@@ -84,8 +84,7 @@ namespace c_util
             x, y - point coordinates
     */
 
-    template <typename T>
-    struct pointT
+    TT struct pointT
     {
         T x;
         T y;
@@ -119,6 +118,51 @@ namespace c_util
     typedef pointT<double> CPointD,     *PCPointD;
     typedef pointT<int>    CPoint,      *PCPoint;
     typedef pointT<short>  CSmallPoint, *PCSmallPoint;
+
+
+    /*
+     -------------------------------------------------------------------------------
+     sizeT<T>
+     -------------------------------------------------------------------------------
+         2D size template
+         simple struct for 2D size representation with some useful funcs
+            width, height - width and height dimensions
+    */
+
+    TT struct sizeT
+    {
+        T width;
+        T height;
+
+        // constructors
+        //     for 0 size
+        inline sizeT();
+        //     for "square" size (width = height)
+        inline sizeT(T value);
+        //     for usual size with indiviudal values for width and height
+        inline sizeT(T w, T h);
+        //     explicit constructor for quick conversion between different size types
+        template <typename Tx> explicit inline sizeT(const sizeT<Tx> &size);
+
+        // every day use operators
+        inline sizeT<T> operator=(T value);
+        inline bool operator==(const sizeT<T> p) const;
+        inline bool operator!=(const sizeT<T> p) const;
+
+        // "check" functions
+        //     empty() returns true if either width and height are 0
+        inline bool empty() const;
+        //     null() return true if both width and height are 0
+        inline bool null() const;
+
+        // flip width and height values
+        inline void flip();
+    };
+
+    typedef sizeT<int>    CSize,       *PCSize;
+    typedef sizeT<float>  CSizeF,      *PCSizeF;
+    typedef sizeT<double> CSizeD,      *PCSizeD;
+    typedef sizeT<short>  CSmallSize,  *PCSmallSize;
 
 
 
@@ -284,6 +328,57 @@ namespace c_util
     TT T pointT<T>::sqrdist(const pointT<T> &p) const
     {
         return (p.x - x) * (p.y - y);
+    }
+
+
+    // sizeT<T> IMPLEMENTATION
+
+    TT sizeT<T>::sizeT() :
+        width(0), height(0)
+    {}
+
+    TT sizeT<T>::sizeT(T value) :
+        width(value), height(value)
+    {}
+
+    TT sizeT<T>::sizeT(T w, T h) :
+        width(w), height(h)
+    {}
+
+    TT template <typename Tx> sizeT<T>::sizeT(const sizeT<Tx> &size) :
+        width(static_cast<T>(size.width)),
+        height(static_cast<T>(size.height))
+    {}
+
+    TT sizeT<T> sizeT<T>::operator=(T value)
+    {
+        width = height = value;
+        return *this;
+    }
+
+    TT bool sizeT<T>::operator==(const sizeT<T> p) const
+    {
+        return width == p.width && height == p.height;
+    }
+
+    TT bool sizeT<T>::operator!=(const sizeT<T> p) const
+    {
+        return width != p.width || height != p.height;
+    }
+
+    TT bool sizeT<T>::empty() const
+    {
+        return width == 0 || height == 0;
+    }
+
+    TT bool sizeT<T>::null() const
+    {
+        return width == 0 && height == 0;
+    }
+
+    TT void sizeT<T>::flip()
+    {
+        exchange(width, height);
     }
 
 } // namespace c_util
