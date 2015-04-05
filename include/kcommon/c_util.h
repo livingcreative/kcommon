@@ -269,7 +269,7 @@ namespace c_util
         inline bool contains(const pointT<T> p) const;
 
         // compute point array bounds and assign them to rect values
-        //     bounds are inclusive! std::numeric_limits
+        //     bounds are inclusive! std::numeric_limits required
         void bounds(const pointT<T> *p, size_t count);
 
         // rectangle normalization (make width and height positive)
@@ -735,8 +735,8 @@ namespace c_util
     {
         rectT<T> A = normalized(), B = r.normalized();
         return
-            (c_util::umin(A.Right, B.Right) > c_util::umax(A.Left, B.Left)) &&
-            (c_util::umin(A.Bottom, B.Bottom) > c_util::umax(A.Top, B.Top));
+            (c_util::umin(A.right, B.right) > c_util::umax(A.left, B.left)) &&
+            (c_util::umin(A.bottom, B.bottom) > c_util::umax(A.top, B.top));
     }
 
     TT bool rectT<T>::contains(const pointT<T> p) const
