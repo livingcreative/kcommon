@@ -1,5 +1,5 @@
 /*
-        common utility types and  funcs.
+        common utility types and funcs.
 
     (c) livingcreative, 2015
 
