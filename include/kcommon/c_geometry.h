@@ -265,6 +265,39 @@ namespace c_geometry
 
     /*
      -------------------------------------------------------------------------------
+     mat3x2<T>
+     -------------------------------------------------------------------------------
+         3х2 matrix template for simple 2D transformations (scale, rotation, skew)
+         and translation transformation
+    */
+
+    TT struct mat3x2
+    {
+        T m00;
+        T m01;
+        T m10;
+        T m11;
+        T m20;
+        T m21;
+
+        inline mat3x2();
+        inline mat3x2(const vec2<T> &row0, const vec2<T> &row1, const vec2<T> row2);
+        inline mat3x2(T _m00, T _m01, T _m10, T _m11, T _m20, T _m21);
+
+        inline vec2<T> operator*(const vec2<T> &v) const;
+
+        inline void identity();
+        inline void translate(T x, T y);
+        inline void scale(T x, T y);
+        inline void rotate(T angle);
+    };
+
+    typedef mat3x2<float> mat3x2f;
+    typedef mat3x2<double> mat3x2d;
+
+
+    /*
+     -------------------------------------------------------------------------------
      mat3x3<T>
      -------------------------------------------------------------------------------
          3х3 matrix template
@@ -813,7 +846,7 @@ namespace c_geometry
 
     TT vec2<T> mat2x2<T>::operator*(const vec2<T> &v) const
     {
-        return vec2<T>(v.x * m00 + v.y * m01, v.x * m10 + v.y * m11);
+        return vec2<T>(v.x * m00 + v.y * m10, v.x * m01 + v.y * m11);
     }
 
     TT void mat2x2<T>::identity()
@@ -848,6 +881,89 @@ namespace c_geometry
         m01 = -s;
         m10 = s;
         m11 = c;
+    }
+
+
+
+    /*
+     -------------------------------------------------------------------------------
+     mat3x2<T> implementation
+     -------------------------------------------------------------------------------
+    */
+
+    TT mat3x2<T>::mat3x2()
+    {
+        identity();
+    }
+
+    TT mat3x2<T>::mat3x2(const vec2<T> &row0, const vec2<T> &row1, const vec2<T> row2) :
+        m00(row0.x),
+        m01(row0.y),
+        m10(row1.x),
+        m11(row1.y),
+        m20(row2.x),
+        m21(row2.y)
+    {}
+
+    TT mat3x2<T>::mat3x2(T _m00, T _m01, T _m10, T _m11, T _m20, T _m21) :
+        m00(_m00),
+        m01(_m01),
+        m10(_m10),
+        m11(_m11),
+        m20(_m20),
+        m21(_m21)
+    {}
+
+    TT vec2<T> mat3x2<T>::operator*(const vec2<T> &v) const
+    {
+        return vec2<T>(
+            v.x * m00 + v.y * m10 + m20,
+            v.x * m01 + v.y * m11 + m21
+        );
+    }
+
+    TT void mat3x2<T>::identity()
+    {
+        m00 = T(1);
+        m01 = T(0);
+        m10 = T(0);
+        m11 = T(1);
+        m20 = T(0);
+        m21 = T(0);
+    }
+
+    TT void mat3x2<T>::translate(T x, T y)
+    {
+        m00 = T(1);
+        m01 = T(0);
+        m10 = T(0);
+        m11 = T(1);
+        m20 = T(x);
+        m21 = T(y);
+    }
+
+    TT void mat3x2<T>::scale(T x, T y)
+    {
+        m00 = T(x);
+        m01 = T(0);
+        m10 = T(0);
+        m11 = T(y);
+        m20 = T(0);
+        m21 = T(0);
+    }
+
+    TT void mat3x2<T>::rotate(T angle)
+    {
+        T s, c;
+        angle = radians(angle);
+        s = sin(angle);
+        c = cos(angle);
+        m00 = c;
+        m01 = -s;
+        m10 = s;
+        m11 = c;
+        m20 = T(0);
+        m21 = T(0);
     }
 
 
