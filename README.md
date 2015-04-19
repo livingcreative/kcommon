@@ -27,3 +27,9 @@ There are several useful `struct` templates for *point*, *size* and *rectangle* 
 One from &lt;stdlib.h&gt; or &lt;cmath&gt; is suitable, include one of these headers before
 
 > The `rectT<T>::bounds()` function uses `std::numeric_limits`. You should include &lt;limits&gt; in order to use this function.
+
+## c_geometry.h
+
+### Overview
+
+This header contains functions and types related to geometry. Handy structs for vectors and matrices have common set of methods and organized similalry. Vector types represent n-dimensional points (or vectors) in space. These types are `vec2`, `vec3` and `vec4`. Matrix types represent rectangular matrices with different sizes. These types are `mat2x2`, `mat3x2`, `mat3x3` and `mat4x4`. Other useful types are `ray` and `segment` for 2D and 3D versions of rays (straight infinte line originated at certain point) and segments (straight line between to points).
