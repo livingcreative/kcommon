@@ -252,11 +252,15 @@ namespace c_geometry
         inline mat2x2(T _m00, T _m01, T _m10, T _m11);
 
         inline vec2<T> operator*(const vec2<T> &v) const;
+        inline mat2x2<T> operator*(const mat2x2<T> &m) const;
 
         inline void identity();
         inline void transpose();
         inline void scale(T x, T y);
         inline void rotate(T angle);
+
+        inline void scaleby(T x, T y);
+        inline void rotateby(T angle);
     };
 
     typedef mat2x2<float> mat2x2f;
@@ -285,11 +289,16 @@ namespace c_geometry
         inline mat3x2(T _m00, T _m01, T _m10, T _m11, T _m20, T _m21);
 
         inline vec2<T> operator*(const vec2<T> &v) const;
+        inline mat3x2<T> operator*(const mat3x2<T> &m) const;
 
         inline void identity();
         inline void translate(T x, T y);
         inline void scale(T x, T y);
         inline void rotate(T angle);
+
+        inline void translateby(T x, T y);
+        inline void scaleby(T x, T y);
+        inline void rotateby(T angle);
     };
 
     typedef mat3x2<float> mat3x2f;
@@ -849,6 +858,16 @@ namespace c_geometry
         return vec2<T>(v.x * m00 + v.y * m10, v.x * m01 + v.y * m11);
     }
 
+    TT mat2x2<T> mat2x2<T>::operator*(const mat2x2<T> &m) const
+    {
+        return mat2x2<T>(
+            m00 * m.m00 + m01 * m.m10,
+            m00 * m.m01 + m01 * m.m11,
+            m10 * m.m00 + m11 * m.m10,
+            m10 * m.m01 + m11 * m.m11
+        );
+    }
+
     TT void mat2x2<T>::identity()
     {
         m00 = T(1);
@@ -881,6 +900,20 @@ namespace c_geometry
         m01 = -s;
         m10 = s;
         m11 = c;
+    }
+
+    TT void mat2x2<T>::scaleby(T x, T y)
+    {
+        mat2x2<T> t;
+        t.scale(x, y);
+        *this = *this * t;
+    }
+
+    TT void mat2x2<T>::rotateby(T angle)
+    {
+        mat2x2<T> t;
+        t.rotate(angle);
+        *this = *this * t;
     }
 
 
@@ -919,6 +952,18 @@ namespace c_geometry
         return vec2<T>(
             v.x * m00 + v.y * m10 + m20,
             v.x * m01 + v.y * m11 + m21
+        );
+    }
+
+    TT mat3x2<T> mat3x2<T>::operator*(const mat3x2<T> &m) const
+    {
+        return mat3x2<T>(
+            m00 * m.m00 + m01 * m.m10,
+            m00 * m.m01 + m01 * m.m11,
+            m10 * m.m00 + m11 * m.m10,
+            m10 * m.m01 + m11 * m.m11,
+            m20 * m.m00 + m21 * m.m10 + m.m20,
+            m20 * m.m01 + m21 * m.m11 + m.m21
         );
     }
 
@@ -964,6 +1009,27 @@ namespace c_geometry
         m11 = c;
         m20 = T(0);
         m21 = T(0);
+    }
+
+    TT void mat3x2<T>::translateby(T x, T y)
+    {
+        mat3x2<T> t;
+        t.translate(x, y);
+        *this = *this * t;
+    }
+
+    TT void mat3x2<T>::scaleby(T x, T y)
+    {
+        mat3x2<T> t;
+        t.scale(x, y);
+        *this = *this * t;
+    }
+
+    TT void mat3x2<T>::rotateby(T angle)
+    {
+        mat3x2<T> t;
+        t.rotate(angle);
+        *this = *this * t;
     }
 
 
