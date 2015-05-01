@@ -91,11 +91,14 @@ namespace c_util
             x, y - point coordinates
     */
 
-    TT struct pointT
+    TT struct pointTBase
     {
         T x;
         T y;
+    };
 
+    TT struct pointT : public pointTBase<T>
+    {
         // constructors
         //     for 0 coord point
         inline pointT();
@@ -142,11 +145,14 @@ namespace c_util
             width, height - width and height dimensions
     */
 
-    TT struct sizeT
+    TT struct sizeTBase
     {
         T width;
         T height;
+    };
 
+    TT struct sizeT : public sizeTBase<T>
+    {
         // constructors
         //     for 0 size
         inline sizeT();
@@ -191,13 +197,16 @@ namespace c_util
             right, bottom values are treated as NON INCLUSIVE edges
     */
 
-    TT struct rectT
+    TT struct rectTBase
     {
         T left;
         T top;
         T right;
         T bottom;
+    };
 
+    TT struct rectT : public rectTBase<T>
+    {
         // constructors
         //     for empty rectangle at (0, 0)
         inline rectT();
@@ -390,22 +399,27 @@ namespace c_util
 
     // pointT<T> IMPLEMENTATION
 
-    TT pointT<T>::pointT() :
-        x(0), y(0)
-    {}
+    TT pointT<T>::pointT()
+    {
+        x = y = 0;
+    }
 
-    TT pointT<T>::pointT(T value) :
-        x(value), y(value)
-    {}
+    TT pointT<T>::pointT(T value)
+    {
+        x = y = value;
+    }
 
-    TT pointT<T>::pointT(T _x, T _y) :
-        x(_x), y(_y)
-    {}
+    TT pointT<T>::pointT(T _x, T _y)
+    {
+        x = _x;
+        y = _y;
+    }
 
-    TT template <typename Tx> pointT<T>::pointT(const pointT<Tx> &point) :
-        x(static_cast<T>(point.x)),
-        y(static_cast<T>(point.y))
-    {}
+    TT template <typename Tx> pointT<T>::pointT(const pointT<Tx> &point)
+    {
+        x = static_cast<T>(point.x);
+        y = static_cast<T>(point.y);
+    }
 
     TT pointT<T> pointT<T>::operator=(T value)
     {
@@ -476,22 +490,27 @@ namespace c_util
 
     // sizeT<T> IMPLEMENTATION
 
-    TT sizeT<T>::sizeT() :
-        width(0), height(0)
-    {}
+    TT sizeT<T>::sizeT()
+    {
+        width = height = 0;
+    }
 
-    TT sizeT<T>::sizeT(T value) :
-        width(value), height(value)
-    {}
+    TT sizeT<T>::sizeT(T value)
+    {
+        width = height = value;
+    }
 
-    TT sizeT<T>::sizeT(T w, T h) :
-        width(w), height(h)
-    {}
+    TT sizeT<T>::sizeT(T w, T h)
+    {
+        width = w;
+        height = h;
+    }
 
-    TT template <typename Tx> sizeT<T>::sizeT(const sizeT<Tx> &size) :
-        width(static_cast<T>(size.width)),
-        height(static_cast<T>(size.height))
-    {}
+    TT template <typename Tx> sizeT<T>::sizeT(const sizeT<Tx> &size)
+    {
+        width = static_cast<T>(size.width);
+        height = static_cast<T>(size.height);
+    }
 
     TT sizeT<T> sizeT<T>::operator=(T value)
     {
@@ -527,30 +546,42 @@ namespace c_util
 
     // rectT<T> IMPLEMENTATION
 
-    TT rectT<T>::rectT() :
-        left(0), top(0), right(0), bottom(0)
-    {}
+    TT rectT<T>::rectT()
+    {
+        left = top = right = bottom = 0;
+    }
 
-    TT rectT<T>::rectT(T _left, T _top, T _right, T _bottom) :
-        left(_left), top(_top), right(_right), bottom(_bottom)
-    {}
+    TT rectT<T>::rectT(T _left, T _top, T _right, T _bottom)
+    {
+        left = _left;
+        top = _top;
+        right = _right;
+        bottom = _bottom;
+    }
 
-    TT rectT<T>::rectT(const pointT<T> lefttop, const pointT<T> rightbottom) :
-        left(lefttop.x), top(lefttop.y),
-        right(rightbottom.x), bottom(rightbottom.y)
-    {}
+    TT rectT<T>::rectT(const pointT<T> lefttop, const pointT<T> rightbottom)
+    {
+        left = lefttop.x;
+        top = lefttop.y;
+        right = rightbottom.x;
+        bottom = rightbottom.y;
+    }
 
-    TT rectT<T>::rectT(const pointT<T> lefttop, const sizeT<T> size) :
-        left(lefttop.x), top(lefttop.y),
-        right(lefttop.x + size.width), bottom(lefttop.y + size.height)
-    {}
+    TT rectT<T>::rectT(const pointT<T> lefttop, const sizeT<T> size)
+    {
+        left = lefttop.x;
+        top = lefttop.y;
+        right = lefttop.x + size.width;
+        bottom = lefttop.y + size.height;
+    }
 
-    TT template <typename Tx> rectT<T>::rectT(const rectT<Tx> &rect) :
-        left(static_cast<T>(rect.left)),
-        top(static_cast<T>(rect.top)),
-        right(static_cast<T>(rect.right)),
-        bottom(static_cast<T>(rect.bottom))
-    {}
+    TT template <typename Tx> rectT<T>::rectT(const rectT<Tx> &rect)
+    {
+        left = static_cast<T>(rect.left);
+        top = static_cast<T>(rect.top);
+        right = static_cast<T>(rect.right);
+        bottom = static_cast<T>(rect.bottom);
+    }
 
     TT rectT<T> rectT<T>::rectAt(const pointT<T> center, const sizeT<T> size)
     {
