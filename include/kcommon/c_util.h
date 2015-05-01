@@ -692,8 +692,8 @@ namespace c_util
 
     TT rectT<T> rectT<T>::pad(const rectT<T> padding) const
     {
-        T w = c_util::umax<T>(width() - padding.width(), 0);
-        T h = c_util::umax<T>(height() - padding.height(), 0);
+        T w = c_util::umax<T>(width() - padding.left - padding.right, 0);
+        T h = c_util::umax<T>(height() - padding.top - padding.bottom, 0);
         return rectT<T>(pointT<T>(left + padding.left, top + padding.top), sizeT<T>(w, h));
     }
 
