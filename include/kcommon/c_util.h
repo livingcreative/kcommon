@@ -167,6 +167,10 @@ namespace c_util
         inline sizeT<T> operator=(T value);
         inline bool operator==(const sizeT<T> p) const;
         inline bool operator!=(const sizeT<T> p) const;
+        inline sizeT<T> operator+(T value) const;
+        inline sizeT<T> operator-(T value) const;
+        inline sizeT<T> operator+(const sizeT<T> value) const;
+        inline sizeT<T> operator-(const sizeT<T> value) const;
 
         // "check" functions
         //     empty() returns true if either width and height are 0
@@ -262,9 +266,9 @@ namespace c_util
 
         // margin and padding calculation, the difference only in +/- operation
         //     pad() subtract rect values
-        inline rectT<T> pad(const rectT<T> padding) const;
+        inline rectT<T> pad(const rectTBase<T> padding) const;
         //     extend() add rect values
-        inline rectT<T> extend(const rectT<T> margins) const;
+        inline rectT<T> extend(const rectTBase<T> margins) const;
 
         // expand or contract rect using point values
         inline rectT<T> inflate(const pointT<T> p) const;
@@ -528,6 +532,26 @@ namespace c_util
         return width != p.width || height != p.height;
     }
 
+    TT sizeT<T> sizeT<T>::operator+(T value) const
+    {
+        return sizeT<T>(width + value, height + value);
+    }
+
+    TT sizeT<T> sizeT<T>::operator-(T value) const
+    {
+        return sizeT<T>(width - value, height - value);
+    }
+
+    TT sizeT<T> sizeT<T>::operator+(const sizeT<T> value) const
+    {
+        return sizeT<T>(width + value.width, height + value.height);
+    }
+
+    TT sizeT<T> sizeT<T>::operator-(const sizeT<T> value) const
+    {
+        return sizeT<T>(width - value.width, height - value.height);
+    }
+
     TT bool sizeT<T>::empty() const
     {
         return width == 0 || height == 0;
@@ -721,14 +745,14 @@ namespace c_util
         return sizeT<T>(result.width(), result.height());
     }
 
-    TT rectT<T> rectT<T>::pad(const rectT<T> padding) const
+    TT rectT<T> rectT<T>::pad(const rectTBase<T> padding) const
     {
         T w = c_util::umax<T>(width() - padding.left - padding.right, 0);
         T h = c_util::umax<T>(height() - padding.top - padding.bottom, 0);
         return rectT<T>(pointT<T>(left + padding.left, top + padding.top), sizeT<T>(w, h));
     }
 
-    TT rectT<T> rectT<T>::extend(const rectT<T> margins) const
+    TT rectT<T> rectT<T>::extend(const rectTBase<T> margins) const
     {
         return rectT<T>(
             left - margins.left, top - margins.top,
