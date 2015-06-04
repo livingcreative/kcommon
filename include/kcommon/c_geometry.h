@@ -11,10 +11,6 @@
 #pragma once
 
 #include "c_util.h"
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <float.h>
-
 
 // not to trash defs with long template declaration
 #define TT template <typename T>
