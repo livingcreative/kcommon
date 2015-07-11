@@ -42,6 +42,8 @@ namespace c_geometry
 
     TT struct vec2
     {
+        typedef T type;
+
         T x;
         T y;
 
@@ -60,11 +62,16 @@ namespace c_geometry
         inline vec2<T> operator/(T scalar) const;
         inline vec2<T> operator-() const;
 
-        template<typename Tp> inline operator c_util::pointT<Tp>() const;
+        template<typename Tp> inline c_util::pointT<Tp> topoint() const;
+        template<typename Tp> inline c_util::pointT<Tp> topointrounded() const;
+
+        inline bool equal(const vec2<T> &v, T eps) const;
 
         inline vec2<T> left() const;
         inline vec2<T> right() const;
         inline T dp(const vec2<T> &v) const;
+        inline T cp(const vec2<T> &v) const;
+        inline vec2<T> proj(const vec2<T> &v) const;
         inline vec2<T> norm() const;
         inline void normalize();
         inline T sqrlen() const;
@@ -88,6 +95,8 @@ namespace c_geometry
 
     TT struct vec3
     {
+        typedef T type;
+
         T x;
         T y;
         T z;
@@ -126,6 +135,8 @@ namespace c_geometry
 
     TT struct vec4
     {
+        typedef T type;
+
         T x;
         T y;
         T z;
@@ -153,6 +164,8 @@ namespace c_geometry
 
     TT struct ray2D
     {
+        typedef T type;
+
         vec2<T> origin;
         vec2<T> direction;
 
@@ -160,6 +173,7 @@ namespace c_geometry
         inline ray2D(const vec2<T> &_origin, const vec2<T> &_direction);
 
         inline T distance(const vec2<T> &p) const;
+        inline T sqrdist(const vec2<T> &p) const;
 
         inline bool parallel(const ray2D<T> &r) const;
         inline bool intersects(const ray2D<T> &r, vec2<T> &p) const;
@@ -181,14 +195,24 @@ namespace c_geometry
 
     TT struct segment2D
     {
+        typedef T type;
+
         vec2<T> A;
         vec2<T> B;
 
         inline segment2D();
         inline segment2D(const vec2<T> &a, const vec2<T> &b);
 
+        inline T length() const;
+        inline T sqrlen() const;
+        inline vec2<T> dir() const;
+        inline vec2<T> normal() const;
+        inline vec2<T> vec() const;
+        inline vec2<T> proj(const vec2<T> &v) const;
+
         inline PositionTest test(const vec2<T> &p, T eps) const;
         inline T distance(const vec2<T> &p) const;
+        inline T sqrdist(const vec2<T> &p) const;
         inline bool intersects(const ray2D<T> &r) const;
         inline bool intersects(const segment2D<T> &s, vec2f &ip) const;
     };
@@ -214,6 +238,8 @@ namespace c_geometry
 
     TT struct ray3D
     {
+        typedef T type;
+
         vec3<T> origin;
         vec3<T> direction;
 
@@ -238,6 +264,8 @@ namespace c_geometry
 
     TT struct mat2x2
     {
+        typedef T type;
+
         T m00;
         T m01;
         T m10;
@@ -273,6 +301,8 @@ namespace c_geometry
 
     TT struct mat3x2
     {
+        typedef T type;
+
         T m00;
         T m01;
         T m10;
@@ -310,6 +340,8 @@ namespace c_geometry
 
     TT struct mat3x3
     {
+        typedef T type;
+
         T m[9];
 
         inline mat3x3();
@@ -336,6 +368,8 @@ namespace c_geometry
 
     TT struct mat4x4
     {
+        typedef T type;
+
         T m[16];
 
         inline mat4x4();
@@ -461,12 +495,25 @@ namespace c_geometry
         return vec2<T>(-x, -y);
     }
 
-    TT template <typename Tp> vec2<T>::operator c_util::pointT<Tp>() const
+    TT template <typename Tp> c_util::pointT<Tp> vec2<T>::topoint() const
     {
-        c_util::pointT<Tp> p;
-        p.x = static_cast<Tp>(x + 0.5);
-        p.y = static_cast<Tp>(y + 0.5);
-        return p;
+        return c_util::pointT<Tp>(
+            static_cast<Tp>(x),
+            static_cast<Tp>(y)
+        );
+    }
+
+    TT template <typename Tp> c_util::pointT<Tp> vec2<T>::topointrounded() const
+    {
+        return c_util::pointT<Tp>(
+            static_cast<Tp>(x + T(0.5)),
+            static_cast<Tp>(y + T(0.5))
+        );
+    }
+
+    TT bool vec2<T>::equal(const vec2<T> &v, T eps) const
+    {
+        return c_util::equal(x, v.x, eps) && c_util::equal(y, v.y, eps);
     }
 
     TT vec2<T> vec2<T>::left() const
@@ -482,6 +529,20 @@ namespace c_geometry
     TT T vec2<T>::dp(const vec2<T> &v) const
     {
         return x * v.x + y * v.y;
+    }
+
+    TT T vec2<T>::cp(const vec2<T> &v) const
+    {
+        // computed as cross product between two 3D vectors
+        // with z coord = 0
+        // only z coord returned as result (since x and y always be 0)
+        return x * v.y - y * v.x;
+    }
+
+    TT vec2<T> vec2<T>::proj(const vec2<T> &v) const
+    {
+        vec2<T> n = norm();
+        return n * n.dp(v);
     }
 
     TT vec2<T> vec2<T>::norm() const
@@ -675,6 +736,16 @@ namespace c_geometry
         }
     }
 
+    TT T ray2D<T>::sqrdist(const vec2<T> &p) const
+    {
+        vec2<T> t = p - origin;
+        if (t.zero()) {
+            return T(0);
+        } else {
+            return origin.sqrdist(p) * direction.dp(t.left().norm());
+        }
+    }
+
     TT bool ray2D<T>::parallel(const ray2D<T> &r) const
     {
         return (direction == r.direction) || (direction == -r.direction);
@@ -732,6 +803,36 @@ namespace c_geometry
         B(b)
     {}
 
+    TT T segment2D<T>::length() const
+    {
+        return A.distance(B);
+    }
+
+    TT T segment2D<T>::sqrlen() const
+    {
+        return A.sqrdist(B);
+    }
+
+    TT vec2<T> segment2D<T>::dir() const
+    {
+        return (B - A).norm();
+    }
+
+    TT vec2<T> segment2D<T>::normal() const
+    {
+        return dir().right();
+    }
+
+    TT vec2<T> segment2D<T>::vec() const
+    {
+        return B - A;
+    }
+
+    TT vec2<T> segment2D<T>::proj(const vec2<T> &v) const
+    {
+        return vec().proj(v - A) + A;
+    }
+
     TT PositionTest segment2D<T>::test(const vec2<T> &p, T eps) const
     {
         T t = (B - A).right().dp(p - A);
@@ -747,6 +848,11 @@ namespace c_geometry
     TT T segment2D<T>::distance(const vec2<T> &p) const
     {
         return ray2D<T>(A, B - A).distance(p);
+    }
+
+    TT T segment2D<T>::sqrdist(const vec2<T> &p) const
+    {
+        return ray2D<T>(A, B - A).sqrdist(p);
     }
 
     TT bool segment2D<T>::intersects(const ray2D<T> &r) const
