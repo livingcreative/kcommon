@@ -233,6 +233,8 @@ namespace c_util
         //     adding/subracting point moves whole rect
         inline rectT<T> operator+(const pointT<T> p) const;
         inline rectT<T> operator-(const pointT<T> p) const;
+        //     multiply by scalar - scale whole rect
+        inline rectT<T> operator*(T scalar) const;
         //     adding rect is "union" operation, composes rect which contains both
         inline rectT<T> operator+(const rectT<T> r) const;
         //     multiply by rect is "intersection" operation, computes rect intersection
@@ -640,6 +642,11 @@ namespace c_util
     TT rectT<T> rectT<T>::operator-(const pointT<T> p) const
     {
         return rectT<T>(left - p.x, top - p.y, right - p.x, bottom - p.y);
+    }
+
+    TT rectT<T> rectT<T>::operator*(T scalar) const
+    {
+        return rectT<T>(left * scalar, top * scalar, right * scalar, bottom * scalar);
     }
 
     TT rectT<T> rectT<T>::operator+(const rectT<T> p) const
