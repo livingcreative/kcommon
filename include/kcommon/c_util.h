@@ -115,6 +115,8 @@ namespace c_util
         inline bool      operator!=(const pointT<T> p) const;
         inline pointT<T> operator+(const pointT<T> p) const;
         inline pointT<T> operator-(const pointT<T> p) const;
+        inline pointT<T>& operator+=(const pointT<T> p);
+        inline pointT<T>& operator-=(const pointT<T> p);
         inline pointT<T> operator-() const;
         inline pointT<T> operator*(const T value) const;
         inline pointT<T> operator/(const T value) const;
@@ -451,6 +453,20 @@ namespace c_util
     TT pointT<T> pointT<T>::operator-(const pointT<T> p) const
     {
         return pointT<T>(x - p.x, y - p.y);
+    }
+
+    TT pointT<T>& pointT<T>::operator+=(const pointT<T> p)
+    {
+        x += p.x;
+        y += p.y;
+        return *this;
+    }
+
+    TT pointT<T>& pointT<T>::operator-=(const pointT<T> p)
+    {
+        x -= p.x;
+        y -= p.y;
+        return *this;
     }
 
     TT pointT<T> pointT<T>::operator-() const
