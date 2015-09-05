@@ -56,10 +56,14 @@ namespace c_geometry
         inline bool operator!=(const vec2<T> &v) const;
         inline vec2<T> operator+(const vec2<T> &v) const;
         inline vec2<T> operator-(const vec2<T> &v) const;
+        inline vec2<T>& operator+=(const vec2<T> &v);
+        inline vec2<T>& operator-=(const vec2<T> &v);
         inline vec2<T> operator*(const vec2<T> &v) const;
         inline vec2<T> operator/(const vec2<T> &v) const;
         inline vec2<T> operator*(T scalar) const;
         inline vec2<T> operator/(T scalar) const;
+        inline vec2<T>& operator*=(T scalar);
+        inline vec2<T>& operator/=(T scalar);
         inline vec2<T> operator-() const;
 
         template<typename Tp> inline c_util::pointT<Tp> topoint() const;
@@ -469,6 +473,20 @@ namespace c_geometry
         return vec2<T>(x - v.x, y - v.y);
     }
 
+    TT vec2<T>& vec2<T>::operator+=(const vec2<T> &v)
+    {
+        x += v.x;
+        y += v.y;
+        return *this;
+    }
+
+    TT vec2<T>& vec2<T>::operator-=(const vec2<T> &v)
+    {
+        x -= v.x;
+        y -= v.y;
+        return *this;
+    }
+
     TT vec2<T> vec2<T>::operator*(const vec2<T> &v) const
     {
         return vec2<T>(x * v.x, y * v.y);
@@ -488,6 +506,21 @@ namespace c_geometry
     {
         T inv = T(1) / scalar;
         return vec2<T>(x * inv, y * inv);
+    }
+
+    TT vec2<T>& vec2<T>::operator*=(T scalar)
+    {
+        x *= scalar;
+        y *= scalar;
+        return *this;
+    }
+
+    TT vec2<T>& vec2<T>::operator/=(T scalar)
+    {
+        T inv = T(1) / scalar;
+        x *= inv;
+        y *= inv;
+        return *this;
     }
 
     TT vec2<T> vec2<T>::operator-() const

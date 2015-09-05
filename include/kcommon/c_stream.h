@@ -30,6 +30,7 @@ namespace c_common
     //      StreamClosed
     //          Stream is in closed state and doesn't have associated underlying object
     //          All function calls (except mode()) are denied
+    //
     //      StreamRead
     //          Stream is read only (calls to write()/seek() are not valid).
     //          It doesn't have size and position (calls to size()/position() are undefined*).
@@ -116,7 +117,7 @@ namespace c_common
                 memory corruption could occur
 
                 call to read is invalid for write only streams and could lead to
-                underlaying imlementation error. it should return 0 and keep buffer
+                underlaying implementation error. it should return 0 and keep buffer
                 unchanged
 
                 for streams with defined size and position:
@@ -135,7 +136,7 @@ namespace c_common
 
                 in general if current stream position is less than current stream size
                 data after current position gets overwritten
-                stream size is exapndable on write, but could be fixed and write out of
+                stream size is expandable on write, but could be fixed and write out of
                 stream bounds could be disallowed
 
                 call to write is invalid for read only streams and could lead to
@@ -160,7 +161,7 @@ namespace c_common
                 imlementation error. it should return 0 in such case
 
                 it's recommended to avoid tricky calls to seek for getting known values
-                such as current position (use position(0) instead of
+                such as current position (use position() instead of
                 seek(0, SeekOrigin::Current)) and stream size (use size() instead of
                 seek(0, SeekOrigin::End))
 
@@ -179,7 +180,7 @@ namespace c_common
                 StreamReadWrite | +       | +       | -      | - *        | - *
                 ReadWrite       | +       | +       | +      | +          | +
 
-                * - on certain stream implementations these calls could be called
+                * - on certain stream implementations these calls could be issued
                 without any error and return actual data (typically size and position return
                 same value with total amount of data read/written)
 
@@ -193,7 +194,7 @@ namespace c_common
                 ReadWrite       - read/write access with random positioning (file, memory)
 
             position() - get current stream position
-                result - current position, if defined where reads or writes will occur
+                result - current position, if defined, where reads or writes will occur
 
                 for stream modes (StreamRead, StreamWrite, StreamReadWrite) current position
                 should be totally irrelevant

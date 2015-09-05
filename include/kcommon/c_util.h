@@ -18,10 +18,9 @@
 
 namespace c_util
 {
-    // some forward type declarations
-    // forwards
+    // some types forward declarations
     TT struct pointT; // 2D point representation with x, y coords
-    TT struct sizeT;  // 2D size  representation with width, height dimensions
+    TT struct sizeT;  // 2D size representation with width, height dimensions
     TT struct rectT;  // 2D rectangle representation
 
 
@@ -32,7 +31,7 @@ namespace c_util
     */
 
     // common min/max functions. ugly "u" prefix is used to avoid conflict with
-    // similar preprocessor definitions
+    // similar preprocessor definitions from other headers one may use
     UF T umin(const T a, const T b);
     UF T umax(const T a, const T b);
 
@@ -47,7 +46,7 @@ namespace c_util
     UF void clampvalue(T &x, const T a, const T b);
     UF T clamp(const T x, const T a, const T b);
 
-    // "pack" and "exapand" value to/back from normalized range [0, 1] from/to [a, b] range
+    // "pack" and "expand" value to/back from normalized range [0, 1] from/to [a, b] range
     //     use with floating point values only (float, double)
     UF T normalizevalue(const T value, const T a, const T b);
     UF T expandvalue(const T normalized, const T a, const T b);
@@ -111,18 +110,20 @@ namespace c_util
 
         // every day use operators (maybe except * and /)
         inline pointT<T> operator=(T value);
-        inline bool      operator==(const pointT<T> p) const;
-        inline bool      operator!=(const pointT<T> p) const;
-        inline pointT<T> operator+(const pointT<T> p) const;
-        inline pointT<T> operator-(const pointT<T> p) const;
-        inline pointT<T>& operator+=(const pointT<T> p);
-        inline pointT<T>& operator-=(const pointT<T> p);
+        inline bool      operator==(const pointT<T> &p) const;
+        inline bool      operator!=(const pointT<T> &p) const;
+        inline pointT<T> operator+(const pointT<T> &p) const;
+        inline pointT<T> operator-(const pointT<T> &p) const;
+        inline pointT<T>& operator+=(const pointT<T> &p);
+        inline pointT<T>& operator-=(const pointT<T> &p);
         inline pointT<T> operator-() const;
         inline pointT<T> operator*(const T value) const;
         inline pointT<T> operator/(const T value) const;
-        inline pointT<T> operator*(const pointT<T> p) const;
-        inline pointT<T> operator/(const pointT<T> p) const;
+        inline pointT<T> operator*(const pointT<T> &p) const;
+        inline pointT<T> operator/(const pointT<T> &p) const;
 
+        // distance between two points
+        inline T distance(const pointT<T> &p) const;
         // squared distance between two points
         inline T sqrdist(const pointT<T> &p) const;
 
@@ -167,12 +168,12 @@ namespace c_util
 
         // every day use operators
         inline sizeT<T> operator=(T value);
-        inline bool operator==(const sizeT<T> p) const;
-        inline bool operator!=(const sizeT<T> p) const;
+        inline bool operator==(const sizeT<T> &p) const;
+        inline bool operator!=(const sizeT<T> &p) const;
         inline sizeT<T> operator+(T value) const;
         inline sizeT<T> operator-(T value) const;
-        inline sizeT<T> operator+(const sizeT<T> value) const;
-        inline sizeT<T> operator-(const sizeT<T> value) const;
+        inline sizeT<T> operator+(const sizeT<T> &value) const;
+        inline sizeT<T> operator-(const sizeT<T> &value) const;
 
         // "check" functions
         //     empty() returns true if either width and height are 0
@@ -185,10 +186,10 @@ namespace c_util
     };
 
     // most common size types (i think)
-    typedef sizeT<int>    CSize,       *PCSize;
-    typedef sizeT<float>  CSizeF,      *PCSizeF;
-    typedef sizeT<double> CSizeD,      *PCSizeD;
-    typedef sizeT<short>  CSmallSize,  *PCSmallSize;
+    typedef sizeT<float>  CSizeF,     *PCSizeF;
+    typedef sizeT<double> CSizeD,     *PCSizeD;
+    typedef sizeT<int>    CSize,      *PCSize;
+    typedef sizeT<short>  CSmallSize, *PCSmallSize;
 
 
     /*
@@ -219,33 +220,35 @@ namespace c_util
         //     for rectangle with specific values for each corner
         inline rectT(T _left, T _top, T _right, T _bottom);
         //     for rectangle from two points
-        inline rectT(const pointT<T> lefttop, const pointT<T> rightbottom);
+        inline rectT(const pointT<T> &lefttop, const pointT<T> &rightbottom);
         //     for rectangle from left top point and size
-        inline rectT(const pointT<T> lefttop, const sizeT<T> size);
+        inline rectT(const pointT<T> &lefttop, const sizeT<T> &size);
         //     explicit constructor for quick conversion between different rect types
         template <typename Tx> explicit inline rectT(const rectT<Tx> &rect);
 
         // make rectangle from center point and size
-        static inline rectT<T> rectAt(const pointT<T> center, const sizeT<T> size);
+        static inline rectT<T> rectAt(const pointT<T> &center, const sizeT<T> &size);
 
         // every day use operators
-        inline rectT<T> operator=(const sizeT<T> value);
-        inline bool operator==(const rectT<T> p) const;
-        inline bool operator!=(const rectT<T> p) const;
+        inline rectT<T> operator=(const sizeT<T> &value);
+        inline bool operator==(const rectT<T> &p) const;
+        inline bool operator!=(const rectT<T> &p) const;
         //     adding/subracting point moves whole rect
-        inline rectT<T> operator+(const pointT<T> p) const;
-        inline rectT<T> operator-(const pointT<T> p) const;
+        inline rectT<T> operator+(const pointT<T> &p) const;
+        inline rectT<T> operator-(const pointT<T> &p) const;
+        inline rectT<T>& operator+=(const pointT<T> &p);
+        inline rectT<T>& operator-=(const pointT<T> &p);
         //     multiply by scalar - scale whole rect
         inline rectT<T> operator*(T scalar) const;
         //     adding rect is "union" operation, composes rect which contains both
-        inline rectT<T> operator+(const rectT<T> r) const;
+        inline rectT<T> operator+(const rectT<T> &r) const;
         //     multiply by rect is "intersection" operation, computes rect intersection
-        inline rectT<T> operator*(const rectT<T> r) const;
+        inline rectT<T> operator*(const rectT<T> &r) const;
         //     implicit sizeT conversion, computes rect size (width and height)
         //     size is always positive and computed from normalized rect
         inline operator sizeT<T>() const;
 
-        // "check" functions, same meaning as for pointT
+        // "check" functions, same meaning as for sizeT
         inline bool empty() const;
         inline bool null() const;
 
@@ -262,30 +265,30 @@ namespace c_util
         inline pointT<T> getRightCenter() const;
         inline pointT<T> getBottomCenter() const;
         inline pointT<T> getCenter() const;
-        inline void setLeftTop(const pointT<T> p);
-        inline void setRightBottom(const pointT<T> p);
-        inline void setCenter(const pointT<T> p);
+        inline void setLeftTop(const pointT<T> &p);
+        inline void setRightBottom(const pointT<T> &p);
+        inline void setCenter(const pointT<T> &p);
         // same as implicit conversion operation, explicit func
         inline sizeT<T> size() const;
 
         // margin and padding calculation, the difference only in +/- operation
         //     pad() subtract rect values
-        inline rectT<T> pad(const rectTBase<T> padding) const;
+        inline rectT<T> pad(const rectTBase<T> &padding) const;
         //     extend() add rect values
-        inline rectT<T> extend(const rectTBase<T> margins) const;
+        inline rectT<T> extend(const rectTBase<T> &margins) const;
 
         // expand or contract rect using point values
-        inline rectT<T> inflate(const pointT<T> p) const;
+        inline rectT<T> inflate(const pointT<T> &p) const;
 
         // explicit "union" and "intersection" operations (same as +* operators)
-        inline rectT<T> unionwith(const rectT<T> r) const;
-        inline rectT<T> intersectionwith(const rectT<T> r) const;
+        inline rectT<T> unionwith(const rectT<T> &r) const;
+        inline rectT<T> intersectionwith(const rectT<T> &r) const;
 
         // "test" functions
         //     test for intersection with other rectangle
-        inline bool intersects(const rectT<T> r) const;
+        inline bool intersects(const rectT<T> &r) const;
         //     test for point inclusion
-        inline bool contains(const pointT<T> p) const;
+        inline bool contains(const pointT<T> &p) const;
 
         // compute point array bounds and assign them to rect values
         //     bounds are inclusive! std::numeric_limits required
@@ -299,9 +302,9 @@ namespace c_util
     };
 
     // most common rect types (i think)
-    typedef rectT<int>    CRect,      *PCRect;
     typedef rectT<float>  CRectF,     *PCRectF;
     typedef rectT<double> CRectD,     *PCRectD;
+    typedef rectT<int>    CRect,      *PCRect;
     typedef rectT<short>  CSmallRect, *PCSmallRect;
 
 
@@ -435,34 +438,34 @@ namespace c_util
         return *this;
     }
 
-    TT bool pointT<T>::operator==(const pointT<T> p) const
+    TT bool pointT<T>::operator==(const pointT<T> &p) const
     {
         return x == p.x && y == p.y;
     }
 
-    TT bool pointT<T>::operator!=(const pointT<T> p) const
+    TT bool pointT<T>::operator!=(const pointT<T> &p) const
     {
         return x != p.x || y != p.y;
     }
 
-    TT pointT<T> pointT<T>::operator+(const pointT<T> p) const
+    TT pointT<T> pointT<T>::operator+(const pointT<T> &p) const
     {
         return pointT<T>(x + p.x, y + p.y);
     }
 
-    TT pointT<T> pointT<T>::operator-(const pointT<T> p) const
+    TT pointT<T> pointT<T>::operator-(const pointT<T> &p) const
     {
         return pointT<T>(x - p.x, y - p.y);
     }
 
-    TT pointT<T>& pointT<T>::operator+=(const pointT<T> p)
+    TT pointT<T>& pointT<T>::operator+=(const pointT<T> &p)
     {
         x += p.x;
         y += p.y;
         return *this;
     }
 
-    TT pointT<T>& pointT<T>::operator-=(const pointT<T> p)
+    TT pointT<T>& pointT<T>::operator-=(const pointT<T> &p)
     {
         x -= p.x;
         y -= p.y;
@@ -484,19 +487,24 @@ namespace c_util
         return pointT<T>(x / value, y / value);
     }
 
-    TT pointT<T> pointT<T>::operator*(const pointT<T> p) const
+    TT pointT<T> pointT<T>::operator*(const pointT<T> &p) const
     {
         return pointT<T>(x * p.x, y * p.y);
     }
 
-    TT pointT<T> pointT<T>::operator/(const pointT<T> p) const
+    TT pointT<T> pointT<T>::operator/(const pointT<T> &p) const
     {
         return pointT<T>(x / p.x, y / p.y);
     }
 
+    TT T pointT<T>::distance(const pointT<T> &p) const
+    {
+        return sqrt(sqrdist(p));
+    }
+
     TT T pointT<T>::sqrdist(const pointT<T> &p) const
     {
-        return (p.x - x) * (p.y - y);
+        return (p.x - x) * (p.x - x) + (p.y - y) * (p.y - y);
     }
 
     TT rectT<T> pointT<T>::expand(T value) const
@@ -540,12 +548,12 @@ namespace c_util
         return *this;
     }
 
-    TT bool sizeT<T>::operator==(const sizeT<T> p) const
+    TT bool sizeT<T>::operator==(const sizeT<T> &p) const
     {
         return width == p.width && height == p.height;
     }
 
-    TT bool sizeT<T>::operator!=(const sizeT<T> p) const
+    TT bool sizeT<T>::operator!=(const sizeT<T> &p) const
     {
         return width != p.width || height != p.height;
     }
@@ -560,12 +568,12 @@ namespace c_util
         return sizeT<T>(width - value, height - value);
     }
 
-    TT sizeT<T> sizeT<T>::operator+(const sizeT<T> value) const
+    TT sizeT<T> sizeT<T>::operator+(const sizeT<T> &value) const
     {
         return sizeT<T>(width + value.width, height + value.height);
     }
 
-    TT sizeT<T> sizeT<T>::operator-(const sizeT<T> value) const
+    TT sizeT<T> sizeT<T>::operator-(const sizeT<T> &value) const
     {
         return sizeT<T>(width - value.width, height - value.height);
     }
@@ -601,7 +609,7 @@ namespace c_util
         bottom = _bottom;
     }
 
-    TT rectT<T>::rectT(const pointT<T> lefttop, const pointT<T> rightbottom)
+    TT rectT<T>::rectT(const pointT<T> &lefttop, const pointT<T> &rightbottom)
     {
         left = lefttop.x;
         top = lefttop.y;
@@ -609,7 +617,7 @@ namespace c_util
         bottom = rightbottom.y;
     }
 
-    TT rectT<T>::rectT(const pointT<T> lefttop, const sizeT<T> size)
+    TT rectT<T>::rectT(const pointT<T> &lefttop, const sizeT<T> &size)
     {
         left = lefttop.x;
         top = lefttop.y;
@@ -625,12 +633,12 @@ namespace c_util
         bottom = static_cast<T>(rect.bottom);
     }
 
-    TT rectT<T> rectT<T>::rectAt(const pointT<T> center, const sizeT<T> size)
+    TT rectT<T> rectT<T>::rectAt(const pointT<T> &center, const sizeT<T> &size)
     {
         return rectT<T>(pointT<T>(-size.width / 2, -size.height / 2), size);
     }
 
-    TT rectT<T> rectT<T>::operator=(const sizeT<T> value)
+    TT rectT<T> rectT<T>::operator=(const sizeT<T> &value)
     {
         left = top = 0;
         right = value.width;
@@ -638,26 +646,44 @@ namespace c_util
         return *this;
     }
 
-    TT bool rectT<T>::operator==(const rectT<T> p) const
+    TT bool rectT<T>::operator==(const rectT<T> &p) const
     {
         return left == p.left && top == p.top &&
                right == p.right && bottom == p.bottom;
     }
 
-    TT bool rectT<T>::operator!=(const rectT<T> p) const
+    TT bool rectT<T>::operator!=(const rectT<T> &p) const
     {
         return left != p.left || top != p.top ||
                right != p.right || bottom != p.bottom;
     }
 
-    TT rectT<T> rectT<T>::operator+(const pointT<T> p) const
+    TT rectT<T> rectT<T>::operator+(const pointT<T> &p) const
     {
         return rectT<T>(left + p.x, top + p.y, right + p.x, bottom + p.y);
     }
 
-    TT rectT<T> rectT<T>::operator-(const pointT<T> p) const
+    TT rectT<T> rectT<T>::operator-(const pointT<T> &p) const
     {
         return rectT<T>(left - p.x, top - p.y, right - p.x, bottom - p.y);
+    }
+
+    TT rectT<T>& rectT<T>::operator+=(const pointT<T> &p)
+    {
+        left += p.x;
+        top += p.y;
+        right += p.x;
+        bottom += p.y;
+        return *this;
+    }
+
+    TT rectT<T>& rectT<T>::operator-=(const pointT<T> &p)
+    {
+        left -= p.x;
+        top -= p.y;
+        right -= p.x;
+        bottom -= p.y;
+        return *this;
     }
 
     TT rectT<T> rectT<T>::operator*(T scalar) const
@@ -665,12 +691,12 @@ namespace c_util
         return rectT<T>(left * scalar, top * scalar, right * scalar, bottom * scalar);
     }
 
-    TT rectT<T> rectT<T>::operator+(const rectT<T> p) const
+    TT rectT<T> rectT<T>::operator+(const rectT<T> &p) const
     {
         return unionwith(p);
     }
 
-    TT rectT<T> rectT<T>::operator*(const rectT<T> p) const
+    TT rectT<T> rectT<T>::operator*(const rectT<T> &p) const
     {
         return intersectionwith(p);
     }
@@ -745,19 +771,19 @@ namespace c_util
         return pointT<T>(left + width() / 2, top + height() / 2);
     }
 
-    TT void rectT<T>::setLeftTop(const pointT<T> p)
+    TT void rectT<T>::setLeftTop(const pointT<T> &p)
     {
         left = p.x;
         top = p.y;
     }
 
-    TT void rectT<T>::setRightBottom(const pointT<T> p)
+    TT void rectT<T>::setRightBottom(const pointT<T> &p)
     {
         right = p.x;
         bottom = p.y;
     }
 
-    TT void rectT<T>::setCenter(const pointT<T> p)
+    TT void rectT<T>::setCenter(const pointT<T> &p)
     {
         *this = rectT<T>(p - pointT<T>(width() / 2, height() / 2), size());
     }
@@ -768,14 +794,14 @@ namespace c_util
         return sizeT<T>(result.width(), result.height());
     }
 
-    TT rectT<T> rectT<T>::pad(const rectTBase<T> padding) const
+    TT rectT<T> rectT<T>::pad(const rectTBase<T> &padding) const
     {
         T w = c_util::umax<T>(width() - padding.left - padding.right, 0);
         T h = c_util::umax<T>(height() - padding.top - padding.bottom, 0);
         return rectT<T>(pointT<T>(left + padding.left, top + padding.top), sizeT<T>(w, h));
     }
 
-    TT rectT<T> rectT<T>::extend(const rectTBase<T> margins) const
+    TT rectT<T> rectT<T>::extend(const rectTBase<T> &margins) const
     {
         return rectT<T>(
             left - margins.left, top - margins.top,
@@ -783,7 +809,7 @@ namespace c_util
         );
     }
 
-    TT rectT<T> rectT<T>::inflate(const pointT<T> p) const
+    TT rectT<T> rectT<T>::inflate(const pointT<T> &p) const
     {
         rectT<T> result = normalized();
         result.left -= p.x;
@@ -793,7 +819,7 @@ namespace c_util
         return result;
     }
 
-    TT rectT<T> rectT<T>::unionwith(const rectT<T> r) const
+    TT rectT<T> rectT<T>::unionwith(const rectT<T> &r) const
     {
         rectT<T> A = normalized(), B = r.normalized();
         return rectT<T>(
@@ -802,7 +828,7 @@ namespace c_util
         );
     }
 
-    TT rectT<T> rectT<T>::intersectionwith(const rectT<T> r) const
+    TT rectT<T> rectT<T>::intersectionwith(const rectT<T> &r) const
     {
         rectT<T> A = normalized(), B = r.normalized();
 
@@ -821,7 +847,7 @@ namespace c_util
         return result;
     }
 
-    TT bool rectT<T>::intersects(const rectT<T> r) const
+    TT bool rectT<T>::intersects(const rectT<T> &r) const
     {
         rectT<T> A = normalized(), B = r.normalized();
         return
@@ -829,7 +855,7 @@ namespace c_util
             (c_util::umin(A.bottom, B.bottom) > c_util::umax(A.top, B.top));
     }
 
-    TT bool rectT<T>::contains(const pointT<T> p) const
+    TT bool rectT<T>::contains(const pointT<T> &p) const
     {
         rectT<T> n = normalized();
         return (p.x >= n.left) && (p.x < n.right) &&
