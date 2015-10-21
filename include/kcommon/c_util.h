@@ -238,6 +238,11 @@ namespace c_util
         inline rectT<T> operator-(const pointT<T> &p) const;
         inline rectT<T>& operator+=(const pointT<T> &p);
         inline rectT<T>& operator-=(const pointT<T> &p);
+        //     adding subtracting size changes size of rectangle
+        inline rectT<T> operator+(const sizeT<T> &value) const;
+        inline rectT<T> operator-(const sizeT<T> &value) const;
+        inline rectT<T>& operator+=(const sizeT<T> &value);
+        inline rectT<T>& operator-=(const sizeT<T> &value);
         //     multiply by scalar - scale whole rect
         inline rectT<T> operator*(T scalar) const;
         //     adding rect is "union" operation, composes rect which contains both
@@ -683,6 +688,30 @@ namespace c_util
         top -= p.y;
         right -= p.x;
         bottom -= p.y;
+        return *this;
+    }
+
+    TT rectT<T> rectT<T>::operator+(const sizeT<T> &value) const
+    {
+        return rectT<T>(left, top, right + value.width, bottom + value.height);
+    }
+
+    TT rectT<T> rectT<T>::operator-(const sizeT<T> &value) const
+    {
+        return rectT<T>(left, top, right - value.width, bottom - value.height);
+    }
+
+    TT rectT<T>& rectT<T>::operator+=(const sizeT<T> &value)
+    {
+        right += value.width;
+        bottom += value.height;
+        return *this;
+    }
+
+    TT rectT<T>& rectT<T>::operator-=(const sizeT<T> &value)
+    {
+        right -= value.width;
+        bottom -= value.height;
         return *this;
     }
 
