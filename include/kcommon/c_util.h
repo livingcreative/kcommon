@@ -80,6 +80,13 @@ namespace c_util
     //     result is -1 for negative value, 0 for zero and +1 for positive value
     UF T sign(const T value);
 
+    // create new pointer from existing one and byte offset to it
+    //     now you don't need to cast void* or other pointers to get byte offsets!
+    UF T getp(T pointer, int offset);
+
+    // "align" value
+    UF T align(T value, T alignment);
+
 
     /*
      -------------------------------------------------------------------------------
@@ -410,6 +417,31 @@ namespace c_util
         }
 
         return T(0);
+    }
+
+    template <typename T, typename C>
+    struct inherit_const
+    {
+        typedef C type;
+    };
+
+    template <typename T, typename C>
+    struct inherit_const<const T, C>
+    {
+        typedef const C type;
+    };
+
+    UF T getp(T pointer, int offset)
+    {
+        return reinterpret_cast<T>(
+            reinterpret_cast<inherit_const<T, char>::type*>(pointer) + offset
+        );
+    }
+
+    UF T align(T value, T alignment)
+    {
+        alignment = alignment - 1;
+        return (value + alignment) & ~alignment;
     }
 
 
@@ -888,7 +920,7 @@ namespace c_util
     {
         rectT<T> n = normalized();
         return (p.x >= n.left) && (p.x < n.right) &&
-               (p.y >= n.top) && (p.y < bottom);
+               (p.y >= n.top) && (p.y < n.bottom);
     }
 
     TT void rectT<T>::bounds(const pointT<T> *p, size_t count)

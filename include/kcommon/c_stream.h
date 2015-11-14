@@ -264,6 +264,7 @@ namespace c_common
 
 
     // common stream types
-    typedef streamT<size_t> CStream;
+    class CStream : public streamT<size_t>
+    {};
 
 } // namespace c_common
