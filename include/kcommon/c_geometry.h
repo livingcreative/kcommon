@@ -76,6 +76,7 @@ namespace c_geometry
         inline T dp(const vec2<T> &v) const;
         inline T cp(const vec2<T> &v) const;
         inline vec2<T> proj(const vec2<T> &v) const;
+        inline vec2<T> unitproj(const vec2<T> &v) const;
         inline vec2<T> norm() const;
         inline void normalize();
         inline T sqrlen() const;
@@ -110,19 +111,29 @@ namespace c_geometry
         inline vec3(const vec2<T> &v, T iz = 0);
         inline vec3(T ix, T iy, T iz);
 
+        operator vec2<T>() const;
+
         inline vec3<T> operator*(T v) const;
         inline vec3<T> operator+(const vec3<T> &v) const;
         inline vec3<T> operator-(const vec3<T> &v) const;
+        inline vec3<T>& operator+=(const vec3<T> &v);
+        inline vec3<T>& operator-=(const vec3<T> &v);
+        inline vec3<T> operator*(const vec3<T> &v) const;
 
         inline T dp(const vec3<T> &v) const;
         inline vec3<T> cp(const vec3<T> &v) const;
-
+        inline vec3<T> proj(const vec3<T> &v) const;
+        inline vec3<T> unitproj(const vec3<T> &v) const;
         inline vec3<T> norm() const;
         inline void normalize();
         inline T sqrlen() const;
         inline T length() const;
         inline T sqrdist(const vec3<T> &p) const;
         inline T distance(const vec3<T> &p) const;
+
+        inline vec3<T> componentwisemin(const vec3<T> &p) const;
+        inline vec3<T> componentwisemax(const vec3<T> &p) const;
+        inline vec3<T> componentwiseclamp(const vec3<T> &a, const vec3<T> &b) const;
     };
 
     // common vector types definition
@@ -149,10 +160,19 @@ namespace c_geometry
         inline vec4();
         inline vec4(T value);
         inline vec4(T ix, T iy, T iz, T iw = 1);
+        inline vec4(const vec2<T> &v, T iz = 0, T iw = 1);
+        inline vec4(const vec3<T> &v, T iw = 1);
 
+        operator vec2<T>() const;
         operator vec3<T>() const;
 
+        inline vec4<T> operator*(T scalar) const;
+        inline vec4<T> operator/(T scalar) const;
+
         inline T dp(const vec4<T> &v) const;
+
+        inline vec4<T> norm() const;
+        inline void normalize();
     };
 
     typedef vec4<float> vec4f;
@@ -412,6 +432,62 @@ namespace c_geometry
     typedef mat4x4<double> mat4x4d;
 
 
+    /*
+     -------------------------------------------------------------------------------
+     plane3D<T>
+     -------------------------------------------------------------------------------
+         3D plane template
+    */
+
+    TT struct plane3D
+    {
+        typedef T type;
+
+        T A;
+        T B;
+        T C;
+        T D;
+
+        inline plane3D();
+        inline plane3D(T a, T b, T c, T d);
+        inline plane3D(const vec3<T> &_normal, T _distance);
+        explicit inline plane3D(const vec4<T> &_plane);
+        inline plane3D(const vec3<T> &v1, const vec3<T> &v2, const vec3<T> &v3);
+
+        inline plane3D<T> opposite() const;
+
+        inline vec3<T> normal() const;
+        inline T distance() const;
+        inline vec3<T> origin() const;
+        inline vec3<T> unitx() const;
+        inline vec3<T> unity() const;
+        inline vec3<T> unitz() const;
+        inline void basis(vec3<T> _basis[3]) const;
+        inline void basis(vec3<T> &x, vec3<T> &y, vec3<T> &z) const;
+        inline void basis(mat3x3<T> &m) const;
+
+        inline void normalize();
+
+        inline T distance(const vec3<T> &p) const;
+        inline bool intersects(const ray3D<T> &ray, vec3<T> &ip, bool bothsides = false) const;
+        inline bool intersects(const ray3D<T> &ray, vec3<T> &ip, T &d, bool bothsides = false) const;
+        //inline bool intersects(const segment3D<T> &ray, vec3<T> &ip) const;
+        //inline bool intersects(const segment3D<T> &ray, vec3<T> &ip, T &d) const;
+        inline vec2<T> proj(const vec3<T> &p) const;
+        inline vec2<T> proj(const vec3<T> &_origin, const vec3<T> &p) const;
+        inline void proj(const vec3<T> *points, size_t count, vec2<T> *result) const;
+        inline void proj(const vec3<T> &_origin, const vec3<T> *points, size_t count, vec2<T> *result) const;
+
+        static inline vec2<T> proj(const vec3<T> &_origin, const vec3<T> &p, const vec3<T> &x, const vec3<T> &y);
+        static inline vec2<T> proj(const vec3<T> &_origin, const vec3<T> &p, const mat3x3<T> &basismatrix);
+        static inline void proj(const vec3<T> &_origin, const vec3<T> *points, size_t count, const vec3<T> &x, const vec3<T> &y, vec2<T> *result);
+        static inline void proj(const vec3<T> &_origin, const vec3<T> *points, size_t count, const mat3x3<T> &basismatrix, vec2<T> *result);
+    };
+
+    typedef plane3D<float> plane3Df;
+    typedef plane3D<double> plane3Dd;
+
+
 
     UF T degrees(T radians)
     {
@@ -644,6 +720,11 @@ namespace c_geometry
         x = ix; y = iy; z = iz;
     }
 
+    TT vec3<T>::operator vec2<T>() const
+    {
+        return vec2<T>(x, y);
+    }
+
     TT vec3<T> vec3<T>::operator*(T v) const
     {
         return vec3<T>(x * v, y * v, z * v);
@@ -657,6 +738,28 @@ namespace c_geometry
     TT vec3<T> vec3<T>::operator-(const vec3<T> &v) const
     {
         return vec3<T>(x - v.x, y - v.y, z - v.z);
+    }
+
+    TT vec3<T>& vec3<T>::operator+=(const vec3<T> &v)
+    {
+        x += v.x;
+        y += v.y;
+        z += v.z;
+        return *this;
+    }
+
+    TT vec3<T>& vec3<T>::operator-=(const vec3<T> &v)
+    {
+        x -= v.x;
+        y -= v.y;
+        z -= v.z;
+        return *this;
+    }
+
+
+    TT vec3<T> vec3<T>::operator*(const vec3<T> &v) const
+    {
+        return vec3<T>(x * v.x, y * v.y, z * v.z);
     }
 
 
@@ -708,6 +811,35 @@ namespace c_geometry
         );
     }
 
+    TT vec3<T> vec3<T>::proj(const vec3<T> &v) const
+    {
+        vec3<T> n = norm();
+        return n * n.dp(v);
+    }
+
+    TT vec3<T> vec3<T>::componentwisemin(const vec3<T> &p) const
+    {
+        return vec3<T>(
+            c_util::umin(x, p.x),
+            c_util::umin(y, p.y),
+            c_util::umin(z, p.z)
+        );
+    }
+
+    TT vec3<T> vec3<T>::componentwisemax(const vec3<T> &p) const
+    {
+        return vec3<T>(
+            c_util::umax(x, p.x),
+            c_util::umax(y, p.y),
+            c_util::umax(z, p.z)
+        );
+    }
+
+    TT vec3<T> vec3<T>::componentwiseclamp(const vec3<T> &a, const vec3<T> &b) const
+    {
+        return componentwisemax(a, componentwisemin(*this, b));
+    }
+
 
 
     /*
@@ -731,14 +863,55 @@ namespace c_geometry
         x = ix; y = iy; z = iz; w = iw;
     }
 
+    TT vec4<T>::vec4(const vec2<T> &v, T iz, T iw)
+    {
+        x = v.x; y = v.y; z = iz; w = iw;
+    }
+
+    TT vec4<T>::vec4(const vec3<T> &v, T iw)
+    {
+        x = v.x; y = v.y; z = v.z; w = iw;
+    }
+
+    TT vec4<T>::operator vec2<T>() const
+    {
+        return vec2<T>(x, y);
+    }
+
     TT vec4<T>::operator vec3<T>() const
     {
         return vec3<T>(x, y, z);
     }
 
+    TT vec4<T> vec4<T>::operator*(T scalar) const
+    {
+        return vec4<T>(x * scalar, y * scalar, z * scalar, w * scalar);
+    }
+
+    TT vec4<T> vec4<T>::operator/(T scalar) const
+    {
+        T inv = T(1) / scalar;
+        return vec4<T>(x * inv, y * inv, z * inv, w * inv);
+    }
+
     TT T vec4<T>::dp(const vec4<T> &v) const
     {
         return x * v.x + y * v.y + z * v.z + w * v.w;
+    }
+
+    TT vec4<T> vec4<T>::norm() const
+    {
+        T invlen = 1 / sqrt(x * x + y * y + z * z + w * w);
+        return vec4<T>(x * invlen, y * invlen, z * invlen, w * invlen);
+    }
+
+    TT void vec4<T>::normalize()
+    {
+        T invlen = 1 / sqrt(x * x + y * y + z * z + w * w);
+        x *= invlen;
+        y *= invlen;
+        z *= invlen;
+        w *= invlen;
     }
 
 
@@ -1544,6 +1717,206 @@ namespace c_geometry
         m[11] = 1;
         m[14] = -Q * near_;
         m[15] = 0;
+    }
+
+
+
+    /*
+     -------------------------------------------------------------------------------
+     plane3D<T> implementation
+     -------------------------------------------------------------------------------
+    */
+
+    TT plane3D<T>::plane3D() :
+        A(0), B(0), C(1), D(0)
+    {}
+
+    TT plane3D<T>::plane3D(T a, T b, T c, T d) :
+        A(a), B(b), C(c), D(d)
+    {}
+
+    TT plane3D<T>::plane3D(const vec3<T> &_normal, T _distance) :
+        A(_normal.x), B(_normal.y), C(_normal.z), D(_distance)
+    {}
+
+    TT plane3D<T>::plane3D(const vec4<T> &_plane) :
+        A(_plane.x), B(_plane.y), C(_plane.z), D(_plane.w)
+    {}
+
+    TT plane3D<T>::plane3D(const vec3<T> &v1, const vec3<T> &v2, const vec3<T> &v3)
+    {
+        vec3<T> normal((v2 - v1).cp(v3 - v1));
+        normal.normalize();
+
+        A = normal.x;
+        B = normal.y;
+        C = normal.z;
+        D = normal.dp(v1);
+    }
+
+    TT plane3D<T> plane3D<T>::opposite() const
+    {
+        return plane3D<T>(-A, -B, -C, D);
+    }
+
+    TT vec3<T> plane3D<T>::normal() const
+    {
+        return vec3<T>(A, B, C);
+    }
+
+    TT T plane3D<T>::distance() const
+    {
+        return D;
+    }
+
+    TT vec3<T> plane3D<T>::origin() const
+    {
+        return normal() * D;
+    }
+
+    TT vec3<T> plane3D<T>::unitx() const
+    {
+        vec3<T> x, y, z;
+        basis(x, y, z);
+        return x;
+    }
+
+    TT vec3<T> plane3D<T>::unity() const
+    {
+        vec3<T> x, y, z;
+        basis(x, y, z);
+        return y;
+    }
+
+    TT vec3<T> plane3D<T>::unitz() const
+    {
+        return vec3<T>(A, B, C);
+    }
+
+    TT void plane3D<T>::basis(vec3<T> _basis[3]) const
+    {
+        basis(_basis[0], _basis[1], _basis[2]);
+    }
+
+    TT void plane3D<T>::basis(vec3<T> &x, vec3<T> &y, vec3<T> &z) const
+    {
+        z = normal();
+        x = vec3f(0, 1, 0).cp(z);
+        if (x.sqrlen() <= FLT_EPSILON) {
+            x = vec3f(0, 0, 1).cp(z);
+        }
+        x.normalize();
+        y = z.cp(x).norm();
+    }
+
+    TT void plane3D<T>::basis(mat3x3<T> &m) const
+    {
+        vec3<T> x, y, z;
+        basis(x, y, z);
+
+        m.m[0] = x.x;
+        m.m[1] = y.x;
+        m.m[2] = z.x;
+
+        m.m[3] = x.y;
+        m.m[4] = y.y;
+        m.m[5] = z.y;
+
+        m.m[6] = x.z;
+        m.m[7] = y.z;
+        m.m[8] = z.z;
+    }
+
+    TT void plane3D<T>::normalize()
+    {
+        vec3<T> n = normal();
+        n.normalize();
+
+        A = n.x; B = n.y; C = n.z;
+    }
+
+    TT T plane3D<T>::distance(const vec3<T> &p) const
+    {
+        vec3<T> n = normal();
+        return n.dp(p - n * D);
+    }
+
+    TT bool plane3D<T>::intersects(const ray3D<T> &ray, vec3<T> &ip, bool bothsides) const
+    {
+        T d;
+        return intersects(ray, ip, d, bothsides);
+    }
+
+    TT bool plane3D<T>::intersects(const ray3D<T> &ray, vec3<T> &ip, T &d, bool bothsides) const
+    {
+        vec3<T> n = normal();
+        T vd = ray.direction.dp(n);
+        if (bothsides ? !equal(vd, T(0), T(FLT_EPSILON)) : vd < 0) {
+            T v0 = -vec3f(n).dp(ray.origin) + D;
+            T t = v0 / vd;
+            if (t > 0) {
+                d = t;
+                ip = ray.origin + ray.direction * t;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    TT vec2<T> plane3D<T>::proj(const vec3<T> &p) const
+    {
+        return proj(origin(), p);
+    }
+
+    TT vec2<T> plane3D<T>::proj(const vec3<T> &_origin, const vec3<T> &p) const
+    {
+        vec3<T> x, y, z;
+        basis(x, y, z);
+        return proj(_origin, p, x, y);
+    }
+
+    TT void plane3D<T>::proj(const vec3<T> *points, size_t count, vec2<T> *result) const
+    {
+        proj(origin(), points, count, result);
+    }
+
+    TT void plane3D<T>::proj(const vec3<T> &_origin, const vec3<T> *points, size_t count, vec2<T> *result) const
+    {
+        vec3<T> x, y, z;
+        basis(x, y, z);
+        proj(_origin, points, count, x, y, result);
+    }
+
+    TT vec2<T> plane3D<T>::proj(const vec3<T> &_origin, const vec3<T> &p, const vec3<T> &x, const vec3<T> &y)
+    {
+        return vec2<T>((p - _origin).dp(x), (p - _origin).dp(y));
+    }
+
+    TT vec2<T> plane3D<T>::proj(const vec3<T> &_origin, const vec3<T> &p, const mat3x3<T> &basismatrix)
+    {
+        return proj(
+            _origin, p,
+            vec2<T>(basismatrix.m[0], basismatrix.m[3]),
+            vec2<T>(basismatrix.m[1], basismatrix.m[4])
+        );
+    }
+
+    TT void plane3D<T>::proj(const vec3<T> &_origin, const vec3<T> *points, size_t count, const vec3<T> &x, const vec3<T> &y, vec2<T> *result)
+    {
+        for (size_t n = 0; n < count; ++n) {
+            *result++ = proj(_origin, *points++, x, y);
+        }
+    }
+
+    TT void plane3D<T>::proj(const vec3<T> &_origin, const vec3<T> *points, size_t count, const mat3x3<T> &basismatrix, vec2<T> *result)
+    {
+        proj(
+            _origin, points, count,
+            vec2<T>(basismatrix.m[0], basismatrix.m[3]),
+            vec2<T>(basismatrix.m[1], basismatrix.m[4]),
+            result
+        );
     }
 
 } // namespace c_geometry
