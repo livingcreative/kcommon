@@ -715,7 +715,7 @@ namespace c_geometry
         x = value; y = value; z = value;
     }
 
-    TT vec3<T>::vec3(const vec2<T> &v, T iz = 0)
+    TT vec3<T>::vec3(const vec2<T> &v, T iz)
     {
         x = v.x; y = v.y; z = iz;
     }
@@ -1741,7 +1741,7 @@ namespace c_geometry
         T s = sin(fov_r);
         T c = cos(fov_r);
 
-        if (abs(far_ - near_) < T(0.01) || abs(s) < T(0.01)) {
+        if (std::abs(far_ - near_) < T(0.01) || std::abs(s) < T(0.01)) {
             return;
         }
 

@@ -434,7 +434,7 @@ namespace c_util
     UF T getp(T pointer, int offset)
     {
         return reinterpret_cast<T>(
-            reinterpret_cast<inherit_const<T, char>::type*>(pointer) + offset
+            reinterpret_cast<typename inherit_const<T, char>::type*>(pointer) + offset
         );
     }
 
@@ -449,89 +449,89 @@ namespace c_util
 
     TT pointT<T>::pointT()
     {
-        x = y = 0;
+        this->x = this->y = 0;
     }
 
     TT pointT<T>::pointT(T value)
     {
-        x = y = value;
+        this->x = this->y = value;
     }
 
     TT pointT<T>::pointT(T _x, T _y)
     {
-        x = _x;
-        y = _y;
+        this->x = _x;
+        this->y = _y;
     }
 
     TT template <typename Tx> pointT<T>::pointT(const pointT<Tx> &point)
     {
-        x = static_cast<T>(point.x);
-        y = static_cast<T>(point.y);
+        this->x = static_cast<T>(point.x);
+        this->y = static_cast<T>(point.y);
     }
 
     TT pointT<T> pointT<T>::operator=(T value)
     {
-        x = y = value;
+        this->x = this->y = value;
         return *this;
     }
 
     TT bool pointT<T>::operator==(const pointT<T> &p) const
     {
-        return x == p.x && y == p.y;
+        return this->x == p.x && this->y == p.y;
     }
 
     TT bool pointT<T>::operator!=(const pointT<T> &p) const
     {
-        return x != p.x || y != p.y;
+        return this->x != p.x || this->y != p.y;
     }
 
     TT pointT<T> pointT<T>::operator+(const pointT<T> &p) const
     {
-        return pointT<T>(x + p.x, y + p.y);
+        return pointT<T>(this->x + p.x, this->y + p.y);
     }
 
     TT pointT<T> pointT<T>::operator-(const pointT<T> &p) const
     {
-        return pointT<T>(x - p.x, y - p.y);
+        return pointT<T>(this->x - p.x, this->y - p.y);
     }
 
     TT pointT<T>& pointT<T>::operator+=(const pointT<T> &p)
     {
-        x += p.x;
-        y += p.y;
+        this->x += p.x;
+        this->y += p.y;
         return *this;
     }
 
     TT pointT<T>& pointT<T>::operator-=(const pointT<T> &p)
     {
-        x -= p.x;
-        y -= p.y;
+        this->x -= p.x;
+        this->y -= p.y;
         return *this;
     }
 
     TT pointT<T> pointT<T>::operator-() const
     {
-        return pointT<T>(-x, -y);
+        return pointT<T>(-this->x, -this->y);
     }
 
     TT pointT<T> pointT<T>::operator*(const T value) const
     {
-        return pointT<T>(x * value, y * value);
+        return pointT<T>(this->x * value, this->y * value);
     }
 
     TT pointT<T> pointT<T>::operator/(const T value) const
     {
-        return pointT<T>(x / value, y / value);
+        return pointT<T>(this->x / value, this->y / value);
     }
 
     TT pointT<T> pointT<T>::operator*(const pointT<T> &p) const
     {
-        return pointT<T>(x * p.x, y * p.y);
+        return pointT<T>(this->x * p.x, this->y * p.y);
     }
 
     TT pointT<T> pointT<T>::operator/(const pointT<T> &p) const
     {
-        return pointT<T>(x / p.x, y / p.y);
+        return pointT<T>(this->x / p.x, this->y / p.y);
     }
 
     TT T pointT<T>::distance(const pointT<T> &p) const
@@ -541,17 +541,22 @@ namespace c_util
 
     TT T pointT<T>::sqrdist(const pointT<T> &p) const
     {
-        return (p.x - x) * (p.x - x) + (p.y - y) * (p.y - y);
+        return
+            (p.x - this->x) * (p.x - this->x) +
+            (p.y - this->y) * (p.y - this->y);
     }
 
     TT rectT<T> pointT<T>::expand(T value) const
     {
-        return rectT<T>(x - value, y - value, x + value, y + value);
+        return rectT<T>(
+            this->x - value, this->y - value,
+            this->x + value, this->y + value
+        );
     }
 
     TT rectT<T> pointT<T>::expand(T _x, T _y) const
     {
-        return rectT<T>(x - _x, y - _y, x + _x, y + _y);
+        return rectT<T>(this->x - _x, this->y - _y, this->x + _x, this->y + _y);
     }
 
 
@@ -559,75 +564,75 @@ namespace c_util
 
     TT sizeT<T>::sizeT()
     {
-        width = height = 0;
+        this->width = this->height = 0;
     }
 
     TT sizeT<T>::sizeT(T value)
     {
-        width = height = value;
+        this->width = this->height = value;
     }
 
     TT sizeT<T>::sizeT(T w, T h)
     {
-        width = w;
-        height = h;
+        this->width = w;
+        this->height = h;
     }
 
     TT template <typename Tx> sizeT<T>::sizeT(const sizeT<Tx> &size)
     {
-        width = static_cast<T>(size.width);
-        height = static_cast<T>(size.height);
+        this->width = static_cast<T>(size.width);
+        this->height = static_cast<T>(size.height);
     }
 
     TT sizeT<T> sizeT<T>::operator=(T value)
     {
-        width = height = value;
+        this->width = this->height = value;
         return *this;
     }
 
     TT bool sizeT<T>::operator==(const sizeT<T> &p) const
     {
-        return width == p.width && height == p.height;
+        return this->width == p.width && this->height == p.height;
     }
 
     TT bool sizeT<T>::operator!=(const sizeT<T> &p) const
     {
-        return width != p.width || height != p.height;
+        return this->width != p.width || this->height != p.height;
     }
 
     TT sizeT<T> sizeT<T>::operator+(T value) const
     {
-        return sizeT<T>(width + value, height + value);
+        return sizeT<T>(this->width + value, this->height + value);
     }
 
     TT sizeT<T> sizeT<T>::operator-(T value) const
     {
-        return sizeT<T>(width - value, height - value);
+        return sizeT<T>(this->width - value, this->height - value);
     }
 
     TT sizeT<T> sizeT<T>::operator+(const sizeT<T> &value) const
     {
-        return sizeT<T>(width + value.width, height + value.height);
+        return sizeT<T>(this->width + value.width, this->height + value.height);
     }
 
     TT sizeT<T> sizeT<T>::operator-(const sizeT<T> &value) const
     {
-        return sizeT<T>(width - value.width, height - value.height);
+        return sizeT<T>(this->width - value.width, this->height - value.height);
     }
 
     TT bool sizeT<T>::empty() const
     {
-        return width == 0 || height == 0;
+        return this->width == 0 || this->height == 0;
     }
 
     TT bool sizeT<T>::null() const
     {
-        return width == 0 && height == 0;
+        return this->width == 0 && this->height == 0;
     }
 
     TT void sizeT<T>::flip()
     {
-        exchange(width, height);
+        exchange(this->width, this->height);
     }
 
 
@@ -635,39 +640,39 @@ namespace c_util
 
     TT rectT<T>::rectT()
     {
-        left = top = right = bottom = 0;
+        this->left = this->top = this->right = this->bottom = 0;
     }
 
     TT rectT<T>::rectT(T _left, T _top, T _right, T _bottom)
     {
-        left = _left;
-        top = _top;
-        right = _right;
-        bottom = _bottom;
+        this->left = _left;
+        this->top = _top;
+        this->right = _right;
+        this->bottom = _bottom;
     }
 
     TT rectT<T>::rectT(const pointT<T> &lefttop, const pointT<T> &rightbottom)
     {
-        left = lefttop.x;
-        top = lefttop.y;
-        right = rightbottom.x;
-        bottom = rightbottom.y;
+        this->left = lefttop.x;
+        this->top = lefttop.y;
+        this->right = rightbottom.x;
+        this->bottom = rightbottom.y;
     }
 
     TT rectT<T>::rectT(const pointT<T> &lefttop, const sizeT<T> &size)
     {
-        left = lefttop.x;
-        top = lefttop.y;
-        right = lefttop.x + size.width;
-        bottom = lefttop.y + size.height;
+        this->left = lefttop.x;
+        this->top = lefttop.y;
+        this->right = lefttop.x + size.width;
+        this->bottom = lefttop.y + size.height;
     }
 
     TT template <typename Tx> rectT<T>::rectT(const rectT<Tx> &rect)
     {
-        left = static_cast<T>(rect.left);
-        top = static_cast<T>(rect.top);
-        right = static_cast<T>(rect.right);
-        bottom = static_cast<T>(rect.bottom);
+        this->left = static_cast<T>(rect.left);
+        this->top = static_cast<T>(rect.top);
+        this->right = static_cast<T>(rect.right);
+        this->bottom = static_cast<T>(rect.bottom);
     }
 
     TT rectT<T> rectT<T>::rectAt(const pointT<T> &center, const sizeT<T> &size)
@@ -677,79 +682,94 @@ namespace c_util
 
     TT rectT<T> rectT<T>::operator=(const sizeT<T> &value)
     {
-        left = top = 0;
-        right = value.width;
-        bottom = value.height;
+        this->left = this->top = 0;
+        this->right = value.width;
+        this->bottom = value.height;
         return *this;
     }
 
     TT bool rectT<T>::operator==(const rectT<T> &p) const
     {
-        return left == p.left && top == p.top &&
-               right == p.right && bottom == p.bottom;
+        return this->left == p.left && this->top == p.top &&
+               this->right == p.right && this->bottom == p.bottom;
     }
 
     TT bool rectT<T>::operator!=(const rectT<T> &p) const
     {
-        return left != p.left || top != p.top ||
-               right != p.right || bottom != p.bottom;
+        return this->left != p.left || this->top != p.top ||
+               this->right != p.right || this->bottom != p.bottom;
     }
 
     TT rectT<T> rectT<T>::operator+(const pointT<T> &p) const
     {
-        return rectT<T>(left + p.x, top + p.y, right + p.x, bottom + p.y);
+        return rectT<T>(
+            this->left + p.x, this->top + p.y,
+            this->right + p.x, this->bottom + p.y
+        );
     }
 
     TT rectT<T> rectT<T>::operator-(const pointT<T> &p) const
     {
-        return rectT<T>(left - p.x, top - p.y, right - p.x, bottom - p.y);
+        return rectT<T>(
+            this->left - p.x, this->top - p.y,
+            this->right - p.x, this->bottom - p.y
+        );
     }
 
     TT rectT<T>& rectT<T>::operator+=(const pointT<T> &p)
     {
-        left += p.x;
-        top += p.y;
-        right += p.x;
-        bottom += p.y;
+        this->left += p.x;
+        this->top += p.y;
+        this->right += p.x;
+        this->bottom += p.y;
         return *this;
     }
 
     TT rectT<T>& rectT<T>::operator-=(const pointT<T> &p)
     {
-        left -= p.x;
-        top -= p.y;
-        right -= p.x;
-        bottom -= p.y;
+        this->left -= p.x;
+        this->top -= p.y;
+        this->right -= p.x;
+        this->bottom -= p.y;
         return *this;
     }
 
     TT rectT<T> rectT<T>::operator+(const sizeT<T> &value) const
     {
-        return rectT<T>(left, top, right + value.width, bottom + value.height);
+        return rectT<T>(
+            this->left, this->top,
+            this->right + value.width, this->bottom + value.height
+        );
     }
 
     TT rectT<T> rectT<T>::operator-(const sizeT<T> &value) const
     {
-        return rectT<T>(left, top, right - value.width, bottom - value.height);
+        return rectT<T>(
+            this->left, this->top,
+            this->right - value.width, this->bottom - value.height
+        );
     }
 
     TT rectT<T>& rectT<T>::operator+=(const sizeT<T> &value)
     {
-        right += value.width;
-        bottom += value.height;
+        this->right += value.width;
+        this->bottom += value.height;
         return *this;
     }
 
     TT rectT<T>& rectT<T>::operator-=(const sizeT<T> &value)
     {
-        right -= value.width;
-        bottom -= value.height;
+        this->right -= value.width;
+        this->bottom -= value.height;
         return *this;
     }
 
     TT rectT<T> rectT<T>::operator*(T scalar) const
     {
-        return rectT<T>(left * scalar, top * scalar, right * scalar, bottom * scalar);
+        return rectT<T>(
+            this->left * scalar, this->top * scalar,
+            this->right * scalar, this->bottom * scalar
+        );
     }
 
     TT rectT<T> rectT<T>::operator+(const rectT<T> &p) const
@@ -779,69 +799,69 @@ namespace c_util
 
     TT T rectT<T>::width() const
     {
-        return right - left;
+        return this->right - this->left;
     }
 
     TT T rectT<T>::height() const
     {
-        return bottom - top;
+        return this->bottom - this->top;
     }
 
     TT pointT<T> rectT<T>::getLeftTop() const
     {
-        return pointT<T>(left, top);
+        return pointT<T>(this->left, this->top);
     }
 
     TT pointT<T> rectT<T>::getRightBottom() const
     {
-        return pointT<T>(right, bottom);
+        return pointT<T>(this->right, this->bottom);
     }
 
     TT pointT<T> rectT<T>::getRightTop() const
     {
-        return pointT<T>(right, top);
+        return pointT<T>(this->right, this->top);
     }
 
     TT pointT<T> rectT<T>::getLeftBottom() const
     {
-        return pointT<T>(left, bottom);
+        return pointT<T>(this->left, this->bottom);
     }
 
     TT pointT<T> rectT<T>::getLeftCenter() const
     {
-        return pointT<T>(left, top + height() / 2);
+        return pointT<T>(this->left, this->top + height() / 2);
     }
 
     TT pointT<T> rectT<T>::getTopCenter() const
     {
-        return pointT<T>(left + width() / 2, top);
+        return pointT<T>(this->left + width() / 2, this->top);
     }
 
     template <typename T> pointT<T> rectT<T>::getRightCenter() const
     {
-        return pointT<T>(right, top + height() / 2);
+        return pointT<T>(this->right, this->top + height() / 2);
     }
 
     TT pointT<T> rectT<T>::getBottomCenter() const
     {
-        return pointT<T>(left + width() / 2, bottom);
+        return pointT<T>(this->left + width() / 2, this->bottom);
     }
 
     TT pointT<T> rectT<T>::getCenter() const
     {
-        return pointT<T>(left + width() / 2, top + height() / 2);
+        return pointT<T>(this->left + width() / 2, this->top + height() / 2);
     }
 
     TT void rectT<T>::setLeftTop(const pointT<T> &p)
     {
-        left = p.x;
-        top = p.y;
+        this->left = p.x;
+        this->top = p.y;
     }
 
     TT void rectT<T>::setRightBottom(const pointT<T> &p)
     {
-        right = p.x;
-        bottom = p.y;
+        this->right = p.x;
+        this->bottom = p.y;
     }
 
     TT void rectT<T>::setCenter(const pointT<T> &p)
@@ -859,14 +879,17 @@ namespace c_util
     {
         T w = c_util::umax<T>(width() - padding.left - padding.right, 0);
         T h = c_util::umax<T>(height() - padding.top - padding.bottom, 0);
-        return rectT<T>(pointT<T>(left + padding.left, top + padding.top), sizeT<T>(w, h));
+        return rectT<T>(
+            pointT<T>(this->left + padding.left, this->top + padding.top),
+            sizeT<T>(w, h)
+        );
     }
 
     TT rectT<T> rectT<T>::extend(const rectTBase<T> &margins) const
     {
         return rectT<T>(
-            left - margins.left, top - margins.top,
-            right + margins.right, bottom + margins.bottom
+            this->left - margins.left, this->top - margins.top,
+            this->right + margins.right, this->bottom + margins.bottom
         );
     }
 
@@ -925,31 +948,31 @@ namespace c_util
 
     TT void rectT<T>::bounds(const pointT<T> *p, size_t count)
     {
-        left = (std::numeric_limits<T>::max)();
-        top = (std::numeric_limits<T>::max)();
-        right = -(std::numeric_limits<T>::max)();
-        bottom = -(std::numeric_limits<T>::max)();
+        this->left = (std::numeric_limits<T>::max)();
+        this->top = (std::numeric_limits<T>::max)();
+        this->right = -(std::numeric_limits<T>::max)();
+        this->bottom = -(std::numeric_limits<T>::max)();
         for (size_t n = 0; n < count; n++) {
-            left = c_util::umin(p[n].x, left);
-            top = c_util::umin(p[n].y, top);
-            right = c_util::umax(p[n].x, right);
-            bottom = c_util::umax(p[n].y, bottom);
+            this->left = c_util::umin(p[n].x, this->left);
+            this->top = c_util::umin(p[n].y, this->top);
+            this->right = c_util::umax(p[n].x, this->right);
+            this->bottom = c_util::umax(p[n].y, this->bottom);
         }
     }
 
     TT void rectT<T>::normalize()
     {
-        left = c_util::umin(left, right);
-        top = c_util::umin(top, bottom);
-        right = c_util::umax(left, right);
-        bottom = c_util::umax(top, bottom);
+        this->left = c_util::umin(this->left, this->right);
+        this->top = c_util::umin(this->top, this->bottom);
+        this->right = c_util::umax(this->left, this->right);
+        this->bottom = c_util::umax(this->top, this->bottom);
     }
 
     TT rectT<T> rectT<T>::normalized() const
     {
         return rectT<T>(
-            c_util::umin(left, right), c_util::umin(top, bottom),
-            c_util::umax(left, right), c_util::umax(top, bottom)
+            c_util::umin(this->left, this->right), c_util::umin(this->top, this->bottom),
+            c_util::umax(this->left, this->right), c_util::umax(this->top, this->bottom)
         );
     }
 
