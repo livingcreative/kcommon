@@ -116,6 +116,7 @@ namespace c_geometry
         inline vec3<T> operator*(T v) const;
         inline vec3<T> operator+(const vec3<T> &v) const;
         inline vec3<T> operator-(const vec3<T> &v) const;
+        inline vec3<T> operator-() const;
         inline vec3<T>& operator+=(const vec3<T> &v);
         inline vec3<T>& operator-=(const vec3<T> &v);
         inline vec3<T> operator*(const vec3<T> &v) const;
@@ -414,6 +415,7 @@ namespace c_geometry
         inline void inverse();
         inline void translate(T x, T y, T z);
         inline void scale(T x, T y, T z);
+        inline void rotate(T angle, const vec3<T> &axis);
         inline void rotatex(T angle);
         inline void rotatey(T angle);
         inline void rotatez(T angle);
@@ -426,6 +428,9 @@ namespace c_geometry
         inline void rotatebyz(T angle);
 
         inline void projectionL(T fov, T aspect, T near_, T far_);
+
+        inline void extractrotation(T &x, T &y, T &z);
+        inline void extractscale(T &x, T &y, T &z);
     };
 
     typedef mat4x4<float> mat4x4f;
@@ -740,6 +745,11 @@ namespace c_geometry
         return vec3<T>(x - v.x, y - v.y, z - v.z);
     }
 
+    TT vec3<T> vec3<T>::operator-() const
+    {
+        return vec3<T>(-x, -y, -z);
+    }
+
     TT vec3<T>& vec3<T>::operator+=(const vec3<T> &v)
     {
         x += v.x;
@@ -837,7 +847,7 @@ namespace c_geometry
 
     TT vec3<T> vec3<T>::componentwiseclamp(const vec3<T> &a, const vec3<T> &b) const
     {
-        return componentwisemax(a, componentwisemin(*this, b));
+        return componentwisemax(a).componentwisemin(b);
     }
 
 
@@ -1614,6 +1624,34 @@ namespace c_geometry
         m[12] = 0; m[13] = 0; m[14] = 0; m[15] = 1;
     }
 
+    TT void mat4x4<T>::rotate(T angle, const vec3<T> &axis)
+    {
+        T a = radians(angle);
+        T s = sin(a);
+        T c = cos(a);
+        T omc = 1 - c;
+
+        m[0] = omc * axis.x * axis.x + c;
+        m[1] = omc * axis.x * axis.y - axis.z * s;
+        m[2] = omc * axis.z * axis.x + axis.y * s;
+        m[3] = 0;
+
+        m[4] = omc * axis.x * axis.y + axis.z * s;
+        m[5] = omc * axis.y * axis.y + c;
+        m[6] = omc * axis.y * axis.z - axis.x * s;
+        m[7] = 0;
+
+        m[8] = omc * axis.z * axis.x - axis.y * s;
+        m[9] = omc * axis.y * axis.z + axis.x * s;
+        m[10] = omc * axis.z * axis.z + c;
+        m[11] = 0;
+
+        m[12] = 0;
+        m[13] = 0;
+        m[14] = 0;
+        m[15] = 1;
+    }
+
     TT void mat4x4<T>::rotatex(T angle)
     {
         T a = radians(angle);
@@ -1717,6 +1755,60 @@ namespace c_geometry
         m[11] = 1;
         m[14] = -Q * near_;
         m[15] = 0;
+    }
+
+    TT void mat4x4<T>::extractrotation(T &x, T &y, T &z)
+    {
+        vec3<T> rows[3] = {
+            row(0),
+            row(1),
+            row(2)
+        };
+
+        // compute X scale factor and normalize first row
+        rows[0] = rows[0] * rows[0].length();
+
+        // compute XY shear factor and make 2nd row orthogonal to 1st
+        T xy = rows[0].dp(rows[1]);
+        rows[1] += rows[0] * -xy;
+
+        // now, compute Y scale and normalize 2nd row
+        rows[1] = rows[1] * rows[1].length();
+
+        // compute XZ and YZ shears, orthogonalize 3rd row
+        T xz = rows[0].dp(rows[2]);
+        rows[2] += rows[0] * -xz;
+
+        T yz = rows[1].dp(rows[2]);
+        rows[2] += rows[1] *  -yz;
+
+        // next, get Z scale and normalize 3rd row
+        rows[2] = rows[2] * rows[2].length();
+
+        // At this point, the matrix (in rows[]) is orthonormal.
+        // Check for a coordinate system flip.  If the determinant
+        // is -1, then negate the matrix and the scaling factors.
+        if (rows[0].dp(rows[1].cp(rows[2])) < 0) {
+            rows[0] = rows[0] * -1;
+            rows[1] = rows[1] * -1;
+            rows[2] = rows[2] * -1;
+        }
+
+        // now, get the rotations out, as described in the gem
+        y = asin(-rows[0].z);
+        if (cos(y) != 0) {
+            x = degrees(atan2(rows[1].z, rows[2].z));
+            z = degrees(atan2(rows[0].y, rows[0].x));
+        } else {
+            x = degrees(atan2(rows[1].x, rows[1].y));
+            z = 0;
+        }
+        y = degrees(y);
+    }
+
+    TT void mat4x4<T>::extractscale(T &x, T &y, T &z)
+    {
+
     }
 
 
@@ -1851,7 +1943,7 @@ namespace c_geometry
     {
         vec3<T> n = normal();
         T vd = ray.direction.dp(n);
-        if (bothsides ? !equal(vd, T(0), T(FLT_EPSILON)) : vd < 0) {
+        if (bothsides ? !c_util::equal(vd, T(0), T(FLT_EPSILON)) : vd < 0) {
             T v0 = -vec3f(n).dp(ray.origin) + D;
             T t = v0 / vd;
             if (t > 0) {
