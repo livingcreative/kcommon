@@ -310,6 +310,13 @@ namespace c_geometry
 
         inline void scaleby(T x, T y);
         inline void rotateby(T angle);
+
+        struct construct
+        {
+            static inline mat2x2<T> identity();
+            static inline mat2x2<T> scale(T x, T y);
+            static inline mat2x2<T> rotate(T angle);
+        };
     };
 
     typedef mat2x2<float> mat2x2f;
@@ -350,6 +357,14 @@ namespace c_geometry
         inline void translateby(T x, T y);
         inline void scaleby(T x, T y);
         inline void rotateby(T angle);
+
+        struct construct
+        {
+            static inline mat3x2<T> identity();
+            static inline mat3x2<T> translate(T x, T y);
+            static inline mat3x2<T> scale(T x, T y);
+            static inline mat3x2<T> rotate(T angle);
+        };
     };
 
     typedef mat3x2<float> mat3x2f;
@@ -377,6 +392,11 @@ namespace c_geometry
         inline const T* data() const;
 
         inline void identity();
+
+        struct construct
+        {
+            static inline mat3x3<T> identity();
+        };
     };
 
     typedef mat3x3<float> mat3x3f;
@@ -431,6 +451,14 @@ namespace c_geometry
 
         inline void extractrotation(T &x, T &y, T &z);
         inline void extractscale(T &x, T &y, T &z);
+
+        struct construct
+        {
+            static inline mat4x4<T> identity();
+            static inline mat4x4<T> translate(T x, T y, T z);
+            static inline mat4x4<T> scale(T x, T y, T z);
+            static inline mat4x4<T> rotate(T angle, const vec3<T> &axis);
+        };
     };
 
     typedef mat4x4<float> mat4x4f;
@@ -1234,6 +1262,25 @@ namespace c_geometry
         *this = *this * t;
     }
 
+    TT mat2x2<T> mat2x2<T>::construct::identity()
+    {
+        return mat2x2<T>();
+    }
+
+    TT mat2x2<T> mat2x2<T>::construct::scale(T x, T y)
+    {
+        mat2x2<T> result;
+        result.scale(x, y);
+        return result;
+    }
+
+    TT mat2x2<T> mat2x2<T>::construct::rotate(T angle)
+    {
+        mat2x2<T> result;
+        result.rotate(angle);
+        return result;
+    }
+
 
 
     /*
@@ -1350,6 +1397,32 @@ namespace c_geometry
         *this = *this * t;
     }
 
+    TT mat3x2<T> mat3x2<T>::construct::identity()
+    {
+        return mat3x2<T>();
+    }
+
+    TT mat3x2<T> mat3x2<T>::construct::translate(T x, T y)
+    {
+        mat3x2<T> result;
+        result.translate(x, y);
+        return result;
+    }
+
+    TT mat3x2<T> mat3x2<T>::construct::scale(T x, T y)
+    {
+        mat3x2<T> result;
+        result.scale(x, y);
+        return result;
+    }
+
+    TT mat3x2<T> mat3x2<T>::construct::rotate(T angle)
+    {
+        mat3x2<T> result;
+        result.rotate(angle);
+        return result;
+    }
+
 
 
     /*
@@ -1385,6 +1458,11 @@ namespace c_geometry
         m[0] = 1; m[1] = 0; m[2] = 0;
         m[3] = 0; m[4] = 1; m[5] = 0;
         m[6] = 0; m[7] = 0; m[8] = 1;
+    }
+
+    TT mat3x3<T> mat3x3<T>::construct::identity()
+    {
+        return mat3x3<T>();
     }
 
 
@@ -1809,6 +1887,32 @@ namespace c_geometry
     TT void mat4x4<T>::extractscale(T &x, T &y, T &z)
     {
 
+    }
+
+    TT mat4x4<T> mat4x4<T>::construct::identity()
+    {
+        return mat4x4<T>();
+    }
+
+    TT mat4x4<T> mat4x4<T>::construct::translate(T x, T y, T z)
+    {
+        mat4x4<T> result;
+        result.translate(x, y, z);
+        return result;
+    }
+
+    TT mat4x4<T> mat4x4<T>::construct::scale(T x, T y, T z)
+    {
+        mat4x4<T> result;
+        result.scale(x, y, z);
+        return result;
+    }
+
+    TT mat4x4<T> mat4x4<T>::construct::rotate(T angle, const vec3<T> &axis)
+    {
+        mat4x4<T> result;
+        result.rotate(angle, axis);
+        return result;
     }
 
 
