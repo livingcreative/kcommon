@@ -299,7 +299,7 @@ namespace c_geometry
         T m11;
 
         inline mat2x2();
-        inline mat2x2(const vec2<T> &row0, const vec2<T> &row1);
+        inline mat2x2(const vec2<T> &col0, const vec2<T> &col1);
         inline mat2x2(T _m00, T _m01, T _m10, T _m11);
 
         inline vec2<T> operator*(const vec2<T> &v) const;
@@ -345,7 +345,8 @@ namespace c_geometry
         T m21;
 
         inline mat3x2();
-        inline mat3x2(const vec2<T> &row0, const vec2<T> &row1, const vec2<T> row2);
+        inline mat3x2(const vec2<T> &col0, const vec2<T> &col1);
+        inline mat3x2(const vec3<T> &col0, const vec3<T> &col1);
         inline mat3x2(T _m00, T _m01, T _m10, T _m11, T _m20, T _m21);
 
         inline vec2<T> operator*(const vec2<T> &v) const;
@@ -387,7 +388,12 @@ namespace c_geometry
         T m[9];
 
         inline mat3x3();
-        inline mat3x3(const vec3<T> &row0, const vec3<T> &row1, const vec3<T> &row2);
+        inline mat3x3(const vec3<T> &col0, const vec3<T> &col1, const vec3<T> &col2);
+        inline mat3x3(
+            T _m00, T _m01, T _m02,
+            T _m10, T _m11, T _m12,
+            T _m20, T _m21, T _m22
+        );
 
         inline operator const T* () const;
 
@@ -420,7 +426,15 @@ namespace c_geometry
         T m[16];
 
         inline mat4x4();
-        inline mat4x4(const vec4<T> &row0, const vec4<T> &row1, const vec4<T> &row2, const vec4<T> &row3);
+        inline mat4x4(const mat3x3<T> &source);
+        inline mat4x4(const vec3<T> &col0, const vec3<T> &col1, const vec3<T> &col2);
+        inline mat4x4(const vec4<T> &col0, const vec4<T> &col1, const vec4<T> &col2, const vec4<T> &col3);
+        inline mat4x4(
+            T _m00, T _m01, T _m02, T _m03,
+            T _m10, T _m11, T _m12, T _m13,
+            T _m20, T _m21, T _m22, T _m23,
+            T _m30, T _m31, T _m32, T _m33
+        );
 
         inline vec3<T> operator*(const vec3<T> &v) const;
         inline vec4<T> operator*(const vec4<T> &v) const;
@@ -431,6 +445,8 @@ namespace c_geometry
 
         inline vec4<T> row(int n) const;
         inline vec4<T> col(int n) const;
+
+        inline void shrink();
 
         inline void identity();
         inline void transpose();
@@ -460,7 +476,6 @@ namespace c_geometry
             static inline mat4x4<T> translate(T x, T y, T z);
             static inline mat4x4<T> scale(T x, T y, T z);
             static inline mat4x4<T> rotate(T angle, const vec3<T> &axis);
-            static inline mat4x4<T> basis(const vec3<T> &x, const vec3<T> &y, const vec3<T> &z);
         };
     };
 
@@ -1210,11 +1225,11 @@ namespace c_geometry
         identity();
     }
 
-    TT mat2x2<T>::mat2x2(const vec2<T> &row0, const vec2<T> &row1) :
-        m00(row0.x),
-        m01(row0.y),
-        m10(row1.x),
-        m11(row1.y)
+    TT mat2x2<T>::mat2x2(const vec2<T> &col0, const vec2<T> &col1) :
+        m00(col0.x),
+        m01(col1.x),
+        m10(col0.y),
+        m11(col1.y)
     {}
 
     TT mat2x2<T>::mat2x2(T _m00, T _m01, T _m10, T _m11) :
@@ -1319,13 +1334,22 @@ namespace c_geometry
         identity();
     }
 
-    TT mat3x2<T>::mat3x2(const vec2<T> &row0, const vec2<T> &row1, const vec2<T> row2) :
-        m00(row0.x),
-        m01(row0.y),
-        m10(row1.x),
-        m11(row1.y),
-        m20(row2.x),
-        m21(row2.y)
+    TT mat3x2<T>::mat3x2(const vec2<T> &col0, const vec2<T> &col1) :
+        m00(col0.x),
+        m01(col1.x),
+        m10(col0.y),
+        m11(col1.y),
+        m20(0),
+        m21(0)
+    {}
+
+    TT mat3x2<T>::mat3x2(const vec3<T> &col0, const vec3<T> &col1) :
+        m00(col0.x),
+        m01(col1.x),
+        m10(col0.y),
+        m11(col1.y),
+        m20(col0.z),
+        m21(col1.z)
     {}
 
     TT mat3x2<T>::mat3x2(T _m00, T _m01, T _m10, T _m11, T _m20, T _m21) :
@@ -1461,11 +1485,22 @@ namespace c_geometry
         identity();
     }
 
-    TT mat3x3<T>::mat3x3(const vec3<T> &row0, const vec3<T> &row1, const vec3<T> &row2)
+    TT mat3x3<T>::mat3x3(const vec3<T> &col0, const vec3<T> &col1, const vec3<T> &col2)
     {
-        m[0] = row0.x; m[1] = row0.y; m[2] = row0.z;
-        m[3] = row1.x; m[4] = row1.y; m[5] = row1.z;
-        m[6] = row2.x; m[7] = row2.y; m[8] = row2.z;
+        m[0] = col0.x; m[1] = col1.x; m[2] = col2.x;
+        m[3] = col0.y; m[4] = col1.y; m[5] = col2.y;
+        m[6] = col0.z; m[7] = col1.z; m[8] = col2.z;
+    }
+
+    TT mat3x3<T>::mat3x3(
+        T _m00, T _m01, T _m02,
+        T _m10, T _m11, T _m12,
+        T _m20, T _m21, T _m22
+    )
+    {
+        m[0] = _m00; m[1] = _m01; m[2] = _m02;
+        m[3] = _m10; m[4] = _m11; m[5] = _m12;
+        m[6] = _m20; m[7] = _m21; m[8] = _m22;
     }
 
     TT mat3x3<T>::operator const T*() const
@@ -1503,12 +1538,41 @@ namespace c_geometry
         identity();
     }
 
-    TT mat4x4<T>::mat4x4(const vec4<T> &row0, const vec4<T> &row1, const vec4<T> &row2, const vec4<T> &row3)
+    TT mat4x4<T>::mat4x4(const mat3x3<T> &source)
     {
-        m[0] = row0.x; m[1] = row0.y; m[2] = row0.z; m[3] = row0.w;
-        m[4] = row1.x; m[5] = row1.y; m[6] = row1.z; m[7] = row1.w;
-        m[8] = row2.x; m[9] = row2.y; m[10] = row2.z; m[11] = row2.w;
-        m[12] = row3.x; m[13] = row3.y; m[14] = row3.z; m[15] = row3.w;
+        m[0]  = source.m[0]; m[1]  = source.m[1]; m[2]  = source.m[2]; m[3]  = 0;
+        m[4]  = source.m[3]; m[5]  = source.m[4]; m[6]  = source.m[5]; m[7]  = 0;
+        m[8]  = source.m[6]; m[9]  = source.m[7]; m[10] = source.m[8]; m[11] = 0;
+        m[12] = 0;           m[13] = 0;           m[14] = 0;           m[15] = 1;
+    }
+
+    TT mat4x4<T>::mat4x4(const vec3<T> &col0, const vec3<T> &col1, const vec3<T> &col2)
+    {
+        m[0]  = col0.x; m[1]  = col1.x; m[2]  = col2.x; m[3]  = 0;
+        m[4]  = col0.y; m[5]  = col1.y; m[6]  = col2.y; m[7]  = 0;
+        m[8]  = col0.z; m[9]  = col1.z; m[10] = col2.z; m[11] = 0;
+        m[12] = 0;      m[13] = 0;      m[14] = 0;      m[15] = 1;
+    }
+
+    TT mat4x4<T>::mat4x4(const vec4<T> &col0, const vec4<T> &col1, const vec4<T> &col2, const vec4<T> &col3)
+    {
+        m[0]  = col0.x; m[1]  = col1.x; m[2]  = col2.x; m[3]  = col3.x;
+        m[4]  = col0.y; m[5]  = col1.y; m[6]  = col2.y; m[7]  = col3.y;
+        m[8]  = col0.z; m[9]  = col1.z; m[10] = col2.z; m[11] = col3.z;
+        m[12] = col0.w; m[13] = col1.w; m[14] = col2.w; m[15] = col3.w;
+    }
+
+    TT mat4x4<T>::mat4x4(
+        T _m00, T _m01, T _m02, T _m03,
+        T _m10, T _m11, T _m12, T _m13,
+        T _m20, T _m21, T _m22, T _m23,
+        T _m30, T _m31, T _m32, T _m33
+    )
+    {
+        m[0]  = _m00; m[1]  = _m01; m[2]  = _m02; m[3]  = _m03;
+        m[4]  = _m10; m[5]  = _m11; m[6]  = _m12; m[7]  = _m13;
+        m[8]  = _m20; m[9]  = _m21; m[10] = _m22; m[11] = _m23;
+        m[12] = _m30; m[13] = _m31; m[14] = _m32; m[15] = _m33;
     }
 
     TT vec3<T> mat4x4<T>::operator*(const vec3<T> &v) const
@@ -1533,10 +1597,10 @@ namespace c_geometry
     TT mat4x4<T> mat4x4<T>::operator*(const mat4x4<T> &m) const
     {
         return mat4x4<T>(
-            vec4<T>(row(0).dp(m.col(0)), row(0).dp(m.col(1)), row(0).dp(m.col(2)), row(0).dp(m.col(3))),
-            vec4<T>(row(1).dp(m.col(0)), row(1).dp(m.col(1)), row(1).dp(m.col(2)), row(1).dp(m.col(3))),
-            vec4<T>(row(2).dp(m.col(0)), row(2).dp(m.col(1)), row(2).dp(m.col(2)), row(2).dp(m.col(3))),
-            vec4<T>(row(3).dp(m.col(0)), row(3).dp(m.col(1)), row(3).dp(m.col(2)), row(3).dp(m.col(3)))
+            row(0).dp(m.col(0)), row(0).dp(m.col(1)), row(0).dp(m.col(2)), row(0).dp(m.col(3)),
+            row(1).dp(m.col(0)), row(1).dp(m.col(1)), row(1).dp(m.col(2)), row(1).dp(m.col(3)),
+            row(2).dp(m.col(0)), row(2).dp(m.col(1)), row(2).dp(m.col(2)), row(2).dp(m.col(3)),
+            row(3).dp(m.col(0)), row(3).dp(m.col(1)), row(3).dp(m.col(2)), row(3).dp(m.col(3))
         );
     }
 
@@ -1555,6 +1619,12 @@ namespace c_geometry
         return vec4<T>(m[0 + n * 4], m[1 + n * 4], m[2 + n * 4], m[3 + n * 4]);
     }
 
+    TT void mat4x4<T>::shrink()
+    {
+        m[3] = 0; m[7] = 0; m[11] = 0;
+        m[12] = 0; m[13] = 0; m[14] = 0; m[15] = 1;
+    }
+
     TT vec4<T> mat4x4<T>::col(int n) const
     {
         return vec4<T>(m[n + 0], m[n + 4], m[n + 8], m[n + 12]);
@@ -1570,12 +1640,7 @@ namespace c_geometry
 
     TT void mat4x4<T>::transpose()
     {
-        mat4x4<T> t(
-            vec4<T>(m[0], m[1], m[2], m[3]),
-            vec4<T>(m[4], m[5], m[6], m[7]),
-            vec4<T>(m[8], m[9], m[10], m[11]),
-            vec4<T>(m[12], m[13], m[14], m[15])
-        );
+        mat4x4<T> t(*this);
 
         m[0] = t.m[0]; m[1] = t.m[4]; m[2] = t.m[8]; m[3] = t.m[12];
         m[4] = t.m[1]; m[5] = t.m[5]; m[6] = t.m[9]; m[7] = t.m[13];
@@ -1938,16 +2003,6 @@ namespace c_geometry
         mat4x4<T> result;
         result.rotate(angle, axis);
         return result;
-    }
-
-    TT mat4x4<T> mat4x4<T>::construct::basis(const vec3<T> &x, const vec3<T> &y, const vec3<T> &z)
-    {
-        return mat4x4<T>(
-            vec4<T>(x.x, y.x, z.x, 0),
-            vec4<T>(x.y, y.y, z.y, 0),
-            vec4<T>(x.z, y.z, z.z, 0),
-            vec4<T>(0, 0, 0, 1)
-        );
     }
 
 
