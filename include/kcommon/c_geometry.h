@@ -120,6 +120,7 @@ namespace c_geometry
         inline vec3<T>& operator+=(const vec3<T> &v);
         inline vec3<T>& operator-=(const vec3<T> &v);
         inline vec3<T> operator*(const vec3<T> &v) const;
+        inline vec3<T> operator/(const vec3<T> &v) const;
 
         inline T dp(const vec3<T> &v) const;
         inline vec3<T> cp(const vec3<T> &v) const;
@@ -274,6 +275,7 @@ namespace c_geometry
         inline T distance(const vec3<T> &p) const;
 
         inline bool intersects(const vec3<T> &a, const vec3<T> &b, const vec3<T> &c, vec3<T> &p) const;
+        inline bool intersects(const vec3<T> &aa, const vec3<T> &bb) const;
     };
 
     typedef ray3D<float> ray3Df;
@@ -458,6 +460,7 @@ namespace c_geometry
             static inline mat4x4<T> translate(T x, T y, T z);
             static inline mat4x4<T> scale(T x, T y, T z);
             static inline mat4x4<T> rotate(T angle, const vec3<T> &axis);
+            static inline mat4x4<T> basis(const vec3<T> &x, const vec3<T> &y, const vec3<T> &z);
         };
     };
 
@@ -798,6 +801,11 @@ namespace c_geometry
     TT vec3<T> vec3<T>::operator*(const vec3<T> &v) const
     {
         return vec3<T>(x * v.x, y * v.y, z * v.z);
+    }
+
+    TT vec3<T> vec3<T>::operator/(const vec3<T> &v) const
+    {
+        return vec3<T>(x / v.x, y / v.y, z / v.z);
     }
 
 
@@ -1170,6 +1178,23 @@ namespace c_geometry
 
         p = origin + direction * t;
         return true;
+    }
+
+    TT bool ray3D<T>::intersects(const vec3<T> &aa, const vec3<T> &bb) const
+    {
+        vec3<T> invn = vec3<T>(1) / direction;
+
+        vec3<T> t1 = (aa - origin) * invn;
+        vec3<T> t2 = (bb - origin) * invn;
+
+        T tmin = c_util::umin(t1.x, t2.x);
+        T tmax = c_util::umax(t1.x, t2.x);
+        tmin = umax(tmin, umin(t1.y, t2.y));
+        tmax = umin(tmax, umax(t1.y, t2.y));
+        tmin = umax(tmin, umin(t1.z, t2.z));
+        tmax = umin(tmax, umax(t1.z, t2.z));
+ 
+        return tmax >= tmin && tmax >= 0;
     }
 
 
@@ -1915,6 +1940,16 @@ namespace c_geometry
         return result;
     }
 
+    TT mat4x4<T> mat4x4<T>::construct::basis(const vec3<T> &x, const vec3<T> &y, const vec3<T> &z)
+    {
+        return mat4x4<T>(
+            vec4<T>(x.x, y.x, z.x, 0),
+            vec4<T>(x.y, y.y, z.y, 0),
+            vec4<T>(x.z, y.z, z.z, 0),
+            vec4<T>(0, 0, 0, 1)
+        );
+    }
+
 
 
     /*
@@ -1997,12 +2032,12 @@ namespace c_geometry
     TT void plane3D<T>::basis(vec3<T> &x, vec3<T> &y, vec3<T> &z) const
     {
         z = normal();
-        x = vec3f(0, 1, 0).cp(z);
+        x = vec3f(0, 0, 1).cp(z);
         if (x.sqrlen() <= FLT_EPSILON) {
-            x = vec3f(0, 0, 1).cp(z);
+            x = vec3f(0, 1, 0).cp(z);
         }
         x.normalize();
-        y = z.cp(x).norm();
+        y = z.cp(x);
     }
 
     TT void plane3D<T>::basis(mat3x3<T> &m) const
