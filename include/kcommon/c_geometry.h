@@ -502,6 +502,7 @@ namespace c_geometry
         inline plane3D();
         inline plane3D(T a, T b, T c, T d);
         inline plane3D(const vec3<T> &_normal, T _distance);
+        inline plane3D(const vec3<T> &_normal, const vec3<T> &_origin);
         explicit inline plane3D(const vec4<T> &_plane);
         inline plane3D(const vec3<T> &v1, const vec3<T> &v2, const vec3<T> &v3);
 
@@ -520,8 +521,10 @@ namespace c_geometry
         inline void normalize();
 
         inline T distance(const vec3<T> &p) const;
-        inline bool intersects(const ray3D<T> &ray, vec3<T> &ip, bool bothsides = false) const;
-        inline bool intersects(const ray3D<T> &ray, vec3<T> &ip, T &d, bool bothsides = false) const;
+        inline bool intersects(const ray3D<T> &ray, vec3<T> &ip) const;
+        inline bool intersects(const ray3D<T> &ray, vec3<T> &ip, T &d) const;
+        inline bool intersectsbothsides(const ray3D<T> &ray, vec3<T> &ip) const;
+        inline bool intersectsbothsides(const ray3D<T> &ray, vec3<T> &ip, T &d) const;
         //inline bool intersects(const segment3D<T> &ray, vec3<T> &ip) const;
         //inline bool intersects(const segment3D<T> &ray, vec3<T> &ip, T &d) const;
         inline vec2<T> proj(const vec3<T> &p) const;
@@ -2025,6 +2028,10 @@ namespace c_geometry
         A(_normal.x), B(_normal.y), C(_normal.z), D(_distance)
     {}
 
+    TT plane3D<T>::plane3D(const vec3<T> &_normal, const vec3<T> &_origin) :
+        A(_normal.x), B(_normal.y), C(_normal.z), D(_normal.dp(_origin))
+    {}
+
     TT plane3D<T>::plane3D(const vec4<T> &_plane) :
         A(_plane.x), B(_plane.y), C(_plane.z), D(_plane.w)
     {}
@@ -2127,18 +2134,41 @@ namespace c_geometry
         return n.dp(p - n * D);
     }
 
-    TT bool plane3D<T>::intersects(const ray3D<T> &ray, vec3<T> &ip, bool bothsides) const
+    TT bool plane3D<T>::intersects(const ray3D<T> &ray, vec3<T> &ip) const
     {
         T d;
-        return intersects(ray, ip, d, bothsides);
+        return intersects(ray, ip, d);
     }
 
-    TT bool plane3D<T>::intersects(const ray3D<T> &ray, vec3<T> &ip, T &d, bool bothsides) const
+    TT bool plane3D<T>::intersects(const ray3D<T> &ray, vec3<T> &ip, T &d) const
     {
         vec3<T> n = normal();
         T vd = ray.direction.dp(n);
-        if (bothsides ? !c_util::equal(vd, T(0), T(FLT_EPSILON)) : vd < 0) {
-            T v0 = -vec3f(n).dp(ray.origin) + D;
+        if (vd < 0) {
+            T v0 = (n * D - ray.origin).dp(n);
+            T t = v0 / vd;
+            if (t > 0) {
+                d = t;
+                ip = ray.origin + ray.direction * t;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    TT bool plane3D<T>::intersectsbothsides(const ray3D<T> &ray, vec3<T> &ip) const
+    {
+        T d;
+        return intersectsbothsides(ray, ip, d);
+    }
+
+    TT bool plane3D<T>::intersectsbothsides(const ray3D<T> &ray, vec3<T> &ip, T &d) const
+    {
+        vec3<T> n = normal();
+        T vd = ray.direction.dp(n);
+        if (vd != 0) {
+            T v0 = (n * D - ray.origin).dp(n);
             T t = v0 / vd;
             if (t > 0) {
                 d = t;
