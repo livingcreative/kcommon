@@ -87,6 +87,7 @@ namespace c_util
     // "align" value
     UF T align(T value, T alignment);
 
+    UF T sqr(T value);
 
     /*
      -------------------------------------------------------------------------------
@@ -442,6 +443,11 @@ namespace c_util
     {
         alignment = alignment - 1;
         return (value + alignment) & ~alignment;
+    }
+
+    UF T sqr(T value)
+    {
+        return value * value;
     }
 
 
