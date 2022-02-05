@@ -276,6 +276,8 @@ namespace c_geometry
 
         inline bool intersects(const vec3<T> &a, const vec3<T> &b, const vec3<T> &c, vec3<T> &p) const;
         inline bool intersects(const vec3<T> &aa, const vec3<T> &bb) const;
+
+        inline ray3D operator-() const;
     };
 
     typedef ray3D<float> ray3Df;
@@ -881,6 +883,11 @@ namespace c_geometry
         return n * n.dp(v);
     }
 
+    TT vec3<T> vec3<T>::unitproj(const vec3<T> &v) const
+    {
+        return v * v.dp(v);
+    }
+
     TT vec3<T> vec3<T>::componentwisemin(const vec3<T> &p) const
     {
         return vec3<T>(
@@ -1213,6 +1220,14 @@ namespace c_geometry
         tmax = umin(tmax, umax(t1.z, t2.z));
  
         return tmax >= tmin && tmax >= 0;
+    }
+
+    TT ray3D<T> ray3D<T>::operator-() const
+    {
+        ray3D<T> result;
+        result.origin = origin;
+        result.direction = -direction;
+        return result;
     }
 
 
