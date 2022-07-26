@@ -89,6 +89,34 @@ namespace c_util
 
     UF T sqr(T value);
 
+
+    /*
+     -------------------------------------------------------------------------------
+     base primitive types
+     -------------------------------------------------------------------------------
+    */
+
+    TT struct pointTBase
+    {
+        T x;
+        T y;
+    };
+
+    TT struct sizeTBase
+    {
+        T width;
+        T height;
+    };
+
+    TT struct rectTBase
+    {
+        T left;
+        T top;
+        T right;
+        T bottom;
+    };
+
+
     /*
      -------------------------------------------------------------------------------
      pointT<T>
@@ -97,12 +125,6 @@ namespace c_util
          simple struct for 2D point representation with some useful funcs
             x, y - point coordinates
     */
-
-    TT struct pointTBase
-    {
-        T x;
-        T y;
-    };
 
     TT struct pointT : public pointTBase<T>
     {
@@ -156,12 +178,6 @@ namespace c_util
             width, height - width and height dimensions
     */
 
-    TT struct sizeTBase
-    {
-        T width;
-        T height;
-    };
-
     TT struct sizeT : public sizeTBase<T>
     {
         // constructors
@@ -191,6 +207,12 @@ namespace c_util
 
         // flip width and height values
         inline void flip();
+
+        // margin and padding calculation, the difference only in +/- operation
+        //     pad() subtract rect values
+        inline sizeT<T> pad(const rectTBase<T> &padding) const;
+        //     extend() add rect values
+        inline sizeT<T> extend(const rectTBase<T> &margins) const;
     };
 
     // most common size types (i think)
@@ -211,14 +233,6 @@ namespace c_util
 
             right, bottom values are treated as NON INCLUSIVE edges
     */
-
-    TT struct rectTBase
-    {
-        T left;
-        T top;
-        T right;
-        T bottom;
-    };
 
     TT struct rectT : public rectTBase<T>
     {
@@ -639,6 +653,21 @@ namespace c_util
     TT void sizeT<T>::flip()
     {
         exchange(this->width, this->height);
+    }
+
+    TT sizeT<T> sizeT<T>::pad(const rectTBase<T> &padding) const
+    {
+        T w = c_util::umax<T>(this->width - padding.left - padding.right, 0);
+        T h = c_util::umax<T>(this->height - padding.top - padding.bottom, 0);
+        return sizeT<T>(w, h);
+    }
+
+    TT sizeT<T> sizeT<T>::extend(const rectTBase<T> &margins) const
+    {
+        return sizeT<T>(
+            this->width + margins.left + margins.right,
+            this->height + margins.top + margins.bottom
+        );
     }
 
 
