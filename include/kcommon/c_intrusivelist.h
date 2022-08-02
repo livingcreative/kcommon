@@ -135,7 +135,7 @@ namespace k_common
             ++p_count;
         }
 
-        void Delete(T *item)
+        void Remove(T *item)
         {
             // TODO: assert item is not in other list
 
