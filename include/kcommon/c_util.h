@@ -76,6 +76,10 @@ namespace c_util
     // "booleanize" value
     //     result is either 0 or 1
     UF int bint(const T value);
+    // boolean to integer: 0 for false, 1 for true
+    UF int intb(const T value);
+    // boolean to integer signed: -1 for false, 1 for true
+    UF int intbs(const T value);
     // take value sign only
     //     result is -1 for negative value, 0 for zero and +1 for positive value
     UF T sign(const T value);
@@ -419,6 +423,16 @@ namespace c_util
     UF int bint(const T value)
     {
         return value == 0 ? 0 : 1;
+    }
+
+    UF int intb(const T value)
+    {
+        return value ? 1 : 0;
+    }
+
+    UF int intbs(const T value)
+    {
+        return value ? 1 : -1;
     }
 
     UF T sign(const T value)
