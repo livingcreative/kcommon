@@ -63,7 +63,14 @@ namespace c_util
     UF T rounddiv(const T a, const T b);
     //     "round" floating point value to int, just (int)(value + 0.5)
     template <typename R, typename T> inline R round(const T value);
+    //     take integer floor
     UF int roundint(const T value);
+
+    // distribute values to fit exact required value proportionally
+    //     floating point version
+    template <typename T, typename F> T distribute(T total, F proportion, F &error);
+    //     integral version
+    UF T distribute(T total, T nom, T denom, T &error);
 
     // floating point equality comparision with epsilon value
     //     it uses "abs" function, so it should be defined somewhere,
@@ -408,6 +415,34 @@ namespace c_util
     UF int roundint(const T value)
     {
         return round<int>(value);
+    }
+
+    template <typename T, typename F> inline T distribute(T total, F proportion, F &error)
+    {
+        auto val = total * proportion;
+        auto result = T(val);
+
+        error += val - result;
+        if (error > F(.99)) {
+            result += 1;
+            error -= 1;
+        }
+
+        return result;
+    }
+
+    UF T distribute(T total, T nom, T denom, T &error)
+    {
+        auto result = total * nom / denom;
+        auto reminder = total * nom % denom;
+
+        error += reminder;
+        if (error >= denom) {
+            result += 1;
+            error -= denom;
+        }
+
+        return result;
     }
 
     UF bool equal(const T a, const T b, const T e)
