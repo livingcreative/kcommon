@@ -486,19 +486,19 @@ namespace c_util
     template <typename T, typename C>
     struct inherit_const
     {
-        typedef C type;
+        typedef C *type;
     };
 
     template <typename T, typename C>
-    struct inherit_const<const T, C>
+    struct inherit_const<const T*, C>
     {
-        typedef const C type;
+        typedef const C *type;
     };
 
     UF T getp(T pointer, int offset)
     {
         return reinterpret_cast<T>(
-            reinterpret_cast<typename inherit_const<T, char>::type*>(pointer) + offset
+            reinterpret_cast<typename inherit_const<T, char>::type>(pointer) + offset
         );
     }
 
