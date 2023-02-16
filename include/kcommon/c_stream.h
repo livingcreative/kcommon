@@ -218,6 +218,8 @@ namespace c_common
     class streamT
     {
     public:
+        virtual ~streamT() {}
+
         // main stream interface
         virtual T read(void *to, T size) = 0;
         virtual T write(const void *from, T size) = 0;
