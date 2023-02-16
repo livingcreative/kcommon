@@ -478,6 +478,9 @@ namespace c_geometry
             static inline mat4x4<T> translate(T x, T y, T z);
             static inline mat4x4<T> scale(T x, T y, T z);
             static inline mat4x4<T> rotate(T angle, const vec3<T> &axis);
+            static inline mat4x4<T> rotatex(T angle);
+            static inline mat4x4<T> rotatey(T angle);
+            static inline mat4x4<T> rotatez(T angle);
         };
     };
 
@@ -2020,6 +2023,27 @@ namespace c_geometry
     {
         mat4x4<T> result;
         result.rotate(angle, axis);
+        return result;
+    }
+
+    TT mat4x4<T> mat4x4<T>::construct::rotatex(T angle)
+    {
+        mat4x4<T> result;
+        result.rotatex(angle);
+        return result;
+    }
+
+    TT mat4x4<T> mat4x4<T>::construct::rotatey(T angle)
+    {
+        mat4x4<T> result;
+        result.rotatey(angle);
+        return result;
+    }
+
+    TT mat4x4<T> mat4x4<T>::construct::rotatez(T angle)
+    {
+        mat4x4<T> result;
+        result.rotatez(angle);
         return result;
     }
 
