@@ -92,12 +92,12 @@ namespace k_common
             source.p_count = 0;
         }
 
-        IntrusiveList &operator=(const IntrusiveList &&source)
+        IntrusiveList &operator=(IntrusiveList &&source)
         {
             p_firstchild = source.p_firstchild;
             p_lastchild = source.p_lastchild;
             p_count = source.p_count;
-            
+
             source.p_firstchild = nullptr;
             source.p_lastchild = nullptr;
             source.p_count = 0;
