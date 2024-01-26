@@ -547,15 +547,17 @@ namespace c_geometry
     typedef plane3D<double> plane3Dd;
 
 
+    constexpr double PI = 3.1415926535897932384626433832795;
+
 
     UF T degrees(T radians)
     {
-        return radians * T(1.0 / M_PI) * T(180.0);
+        return radians * T(1.0 / PI) * T(180.0);
     }
 
     UF T radians(T degrees)
     {
-        return degrees * T(M_PI) * T(1.0 / 180.0);
+        return degrees * T(PI) * T(1.0 / 180.0);
     }
 
 

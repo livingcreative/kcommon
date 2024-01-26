@@ -30,6 +30,7 @@ namespace k_common
             T *operator*() const noexcept { return p_current; }
             T *operator->() const noexcept { return p_current; }
 
+            bool operator==(const IteratorBase &other) const noexcept { return p_current == other.p_current; }
             bool operator!=(const IteratorBase &other) const noexcept { return p_current != other.p_current; }
 
         protected:
