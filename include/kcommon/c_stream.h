@@ -27,7 +27,7 @@ namespace c_common
     // stream operating mode (returned from mode() functions)
     // stream mode determines stream object behaviour and method
     // availability
-    //      StreamClosed
+    //      Closed
     //          Stream is in closed state and doesn't have associated underlying object
     //          All function calls (except mode()) are denied
     //
@@ -84,7 +84,7 @@ namespace c_common
     //      their result could be irrelevant to the state of the stream.
     enum class StreamMode
     {
-        StreamClosed,
+        Closed,
         StreamRead,
         SequentialRead,
         Read,
