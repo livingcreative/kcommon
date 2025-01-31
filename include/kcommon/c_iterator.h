@@ -130,10 +130,10 @@ namespace c_util
      index_enumerator<T>
      -------------------------------------------------------------------------------
          Template wrapper around enumerable type to access indexed iteration
-         
+
          typical use:
          for (auto &item : index_enumerator(container)) {
-            
+
          }
     */
     template<typename T>
@@ -150,5 +150,4 @@ namespace c_util
     private:
         T &p_enumerable;
     };
-
 }

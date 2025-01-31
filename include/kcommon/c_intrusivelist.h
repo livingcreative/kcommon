@@ -1,6 +1,6 @@
 #pragma once
 
-namespace k_common
+namespace c_common
 {
     template <typename T>
     class IntrusiveListDefaultAdapter
