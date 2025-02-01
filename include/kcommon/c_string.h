@@ -106,11 +106,13 @@ namespace c_common
 #endif
     };
 
+#if _DEBUG
     template <typename T, typename M, typename N>
     size_t StringStore<T, M, N>::dbg_instances = 0;
 
     template <typename T, typename M, typename N>
     size_t StringStore<T, M, N>::dbg_allocated = 0;
+#endif
 
 
     template <typename T, typename N>
