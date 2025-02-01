@@ -266,7 +266,8 @@ namespace c_common
 
 
     // common stream types
-    class CStream : public streamT<size_t>
+    // as c++ is shit, using can't be used here as it prevents forward declarations
+    class Stream : public streamT<size_t>
     {};
 
 } // namespace c_common
