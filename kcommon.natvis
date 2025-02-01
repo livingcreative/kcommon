@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+    <Type Name="c_util::pointTBase&lt;*&gt;" Inheritable="false">
+        <DisplayString>{{{x}; {y}}}</DisplayString>
+        <Expand>
+            <Item Name="x">x</Item>
+            <Item Name="y">y</Item>
+        </Expand>
+    </Type>
+    <Type Name="c_util::sizeTBase&lt;*&gt;" Inheritable="false">
+        <DisplayString>{{{width}x{height}}}</DisplayString>
+        <Expand>
+            <Item Name="width">width</Item>
+            <Item Name="height">height</Item>
+        </Expand>
+    </Type>
+    <Type Name="c_util::rectTBase&lt;*&gt;" Inheritable="false">
+        <DisplayString>{{{left}; {top}; {right}; {bottom}}}</DisplayString>
+        <Expand>
+            <Item Name="left">left</Item>
+            <Item Name="top">top</Item>
+            <Item Name="right">right</Item>
+            <Item Name="bottom">bottom</Item>
+            <Item Name="width">right - left</Item>
+            <Item Name="height">bottom - top</Item>
+        </Expand>
+    </Type>
+    <Type Name="c_util::pointT&lt;*&gt;" Inheritable="false">
+        <DisplayString>{{{x}; {y}}}</DisplayString>
+        <Expand>
+            <Item Name="x">x</Item>
+            <Item Name="y">y</Item>
+        </Expand>
+    </Type>
+    <Type Name="c_util::sizeT&lt;*&gt;" Inheritable="false">
+        <DisplayString>{{{width}x{height}}}</DisplayString>
+        <Expand>
+            <Item Name="width">width</Item>
+            <Item Name="height">height</Item>
+        </Expand>
+    </Type>
+    <Type Name="c_util::rectT&lt;*&gt;" Inheritable="false">
+        <DisplayString>{{{left}; {top}; {right}; {bottom}}}</DisplayString>
+        <Expand>
+            <Item Name="left">left</Item>
+            <Item Name="top">top</Item>
+            <Item Name="right">right</Item>
+            <Item Name="bottom">bottom</Item>
+            <Item Name="width">right - left</Item>
+            <Item Name="height">bottom - top</Item>
+        </Expand>
+    </Type>
+</AutoVisualizer>
