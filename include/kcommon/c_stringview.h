@@ -287,6 +287,10 @@ namespace c_common
 
             return false;
         }
+
+    private:
+        using Span<T, M>::ChopStart;
+        using Span<T, M>::ChopEnd;
     };
 
     using StringView = StringViewBase<char>;

@@ -54,6 +54,11 @@ namespace c_common
             p_size(length)
         {}
 
+        constexpr Span(const std::initializer_list<T> &source) noexcept :
+            p_data(std::data(source)),
+            p_size(source.size())
+        {}
+
         constexpr Span(const Span<T, M> &other) noexcept :
             p_data(other.p_data),
             p_size(other.p_size)

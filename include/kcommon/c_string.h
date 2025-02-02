@@ -104,6 +104,10 @@ namespace c_common
         static size_t dbg_instances;
         static size_t dbg_allocated;
 #endif
+
+    private:
+        using StringViewBase<T, M>::remove_prefix;
+        using StringViewBase<T, M>::remove_suffix;
     };
 
 #if _DEBUG
@@ -283,8 +287,9 @@ namespace c_common
         {
             if (size == 0) {
                 this->CleanUp();
-                this->SetEmptyWithNull();
+                this->p_data = nullptr;
                 this->p_size = 0;
+                this->SetEmptyWithNull();
                 return;
             }
 
