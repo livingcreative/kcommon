@@ -50,20 +50,40 @@ namespace c_common
 
         void Write(const T *data, size_t size)
         {
-            R::Resize(p_buffer, p_capacity, p_size + size);
+            auto reqsize = size;
+            if (p_width != -1 && p_width > reqsize) {
+                reqsize = p_width;
+            }
+
+            R::Resize(p_buffer, p_capacity, p_size + reqsize);
 
             if (p_size >= (p_capacity - N::NULL_LEN)) {
                 return;
             }
-            if ((p_size + size + N::NULL_LEN) > p_capacity) {
-                size = p_capacity - p_size - N::NULL_LEN;
+            if ((p_size + reqsize + N::NULL_LEN) > p_capacity) {
+                reqsize = p_capacity - p_size - N::NULL_LEN;
             }
+            if (reqsize < size) {
+                size = reqsize;
+            }
+
+            if (size < reqsize) {
+                auto p = p_buffer + p_size;
+                for (auto n = size; size < reqsize; ++n) {
+                    *p++ = p_textfill;
+                }
+                p_size += reqsize - size;
+            }
+
             memcpy(p_buffer + p_size, data, size * sizeof(T));
             p_size += size;
 
             if constexpr (N::NULL_LEN) {
                 *(p_buffer + p_size) = 0;
             }
+
+            p_precision = -1;
+            p_width = -1;
         }
 
         void Write(long long int value)
@@ -115,6 +135,16 @@ namespace c_common
             }
         }
 
+        void precision(unsigned p)
+        {
+            p_precision = p;
+        }
+
+        void width(unsigned w)
+        {
+            p_width = w;
+        }
+
     protected:
         void ToString(T *buffer, size_t capacity, size_t &size, long long unsigned value)
         {
@@ -132,6 +162,13 @@ namespace c_common
                 ++size;
                 value /= 10;
             }
+
+            if (p_width != -1 && size < p_width) {
+                while (n > 0 && size < p_width) {
+                    buffer[--n] = p_numberfill;
+                    ++size;
+                }
+            }
         }
 
         void ToString(T *buffer, size_t capacity, size_t &size, double value)
@@ -146,6 +183,16 @@ namespace c_common
 
             auto integer = floor(value);
             auto fraction = value - integer;
+
+            if (p_precision != -1) {
+                if (p_precision == 0) {
+                    integer += round(fraction);
+                    fraction = 0;
+                } else {
+                    auto pp = pow(10, p_precision);
+                    fraction = round(fraction * pp) / pp;
+                }
+            }
 
             // removing trailing zeroes from integer part
             auto zeroes = 0u;
@@ -184,17 +231,33 @@ namespace c_common
 
             digits = size_t(0);
             ToString(p, 16, digits, (unsigned long long)(fraction * 10e15));
-            for (auto n = 0u; n < (16 - digits); ++n) {
-                *p++ = '0';
-                size++;
+
+            if (p_precision == -1) {
+                for (auto n = 0u; n < (16 - digits); ++n) {
+                    *p++ = '0';
+                    size++;
+                }
+            } else if (digits > p_precision) {
+                digits = p_precision;
+            } else {
+                while (digits < p_precision) {
+                    *p++ = '0';
+                    size++;
+                    digits++;
+                }
             }
+
             size += digits;
         }
 
     protected:
-        T      *p_buffer;
-        size_t  p_size;
-        size_t  p_capacity;
+        T        *p_buffer;
+        size_t    p_size;
+        size_t    p_capacity;
+        unsigned  p_width = -1;       // next write width
+        unsigned  p_precision = -1;   // next number write precision
+        T         p_textfill = ' ';   // width fill for text writes
+        T         p_numberfill = '0'; // numbers leading fill
     };
 
 
