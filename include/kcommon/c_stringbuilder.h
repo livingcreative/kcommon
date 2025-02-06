@@ -238,11 +238,12 @@ namespace c_common
                     size++;
                 }
             } else if (digits > p_precision) {
+                memmove(p, p + 16 - digits, digits * sizeof(T));
                 digits = p_precision;
             } else {
+                memmove(p + p_precision - digits, p + 16 - digits, digits * sizeof(T));
                 while (digits < p_precision) {
                     *p++ = '0';
-                    size++;
                     digits++;
                 }
             }
