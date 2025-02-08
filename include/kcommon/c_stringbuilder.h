@@ -69,7 +69,7 @@ namespace c_common
 
             if (size < reqsize) {
                 auto p = p_buffer + p_size;
-                for (auto n = size; size < reqsize; ++n) {
+                for (auto n = size; n < reqsize; ++n) {
                     *p++ = p_textfill;
                 }
                 p_size += reqsize - size;
@@ -153,7 +153,6 @@ namespace c_common
             if (value == 0) {
                 buffer[--n] = '0';
                 ++size;
-                return;
             }
 
             while (value > 0) {

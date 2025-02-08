@@ -209,7 +209,7 @@ namespace c_common
             this->CopyFromSource(other.data());
             return *this;
         }
-        
+
         template <typename NN>
         StringBase<T, N> &operator=(const MutableStringBase<T, NN> &other)
         {

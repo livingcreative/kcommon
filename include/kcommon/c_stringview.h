@@ -100,8 +100,16 @@ namespace c_common
 
         constexpr StringViewBase<T, M> substr(size_t start, size_t size) const noexcept
         {
-            auto sliced = Span<T, M>::slice(start, size);
-            return StringViewBase<T, M>(sliced.data(), sliced.size());
+            // as c++ is utter shit this is copypasta from Slice
+            if (start >= p_size) {
+                return {};
+            }
+
+            if ((start + size) > p_size) {
+                size = p_size - start;
+            }
+
+            return StringViewBase<T, M>(p_data + start, size);
         }
 
         constexpr size_t find(T ch, size_t start = 0) const noexcept
