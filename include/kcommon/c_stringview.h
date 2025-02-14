@@ -81,6 +81,53 @@ namespace c_common
             return *this;
         }
 
+
+        template <typename MM>
+        bool operator==(const StringViewBase<T, MM> &other) const noexcept
+        {
+            if (this->p_size != other.size()) {
+                return false;
+            }
+            return memcmp(this->p_data, other.data(), this->p_size * sizeof(T)) == 0;
+        }
+
+        template <typename MM>
+        bool operator!=(const StringViewBase<T, MM> &other) const noexcept
+        {
+            if (this->p_size != other.size()) {
+                return true;
+            }
+            return memcmp(this->p_data, other.data(), this->p_size * sizeof(T)) != 0;
+        }
+
+        template <size_t length>
+        constexpr bool operator==(const T(&text)[length]) const noexcept
+        {
+            return *this == StringViewBase<T>(text);
+        }
+
+        template <typename MM>
+        bool operator<(const StringViewBase<T, MM> &other) const noexcept
+        {
+            auto minsize = this->p_size;
+            if (other.size() < minsize) {
+                minsize = other.size();
+            }
+
+            auto res = memcmp(this->p_data, other.data(), minsize * sizeof(T));
+
+            if (res < 0) {
+                return true;
+            }
+
+            if (res == 0) {
+                return this->p_size < other.size();
+            }
+
+            return false;
+        }
+
+
         size_t length() const { return this->p_size; }
 
         StringViewReverseIterator<typename M::interface_type> rbegin() const noexcept
@@ -128,15 +175,15 @@ namespace c_common
             return -1;
         }
 
-        constexpr size_t find(const StringViewBase<T, M> &substr, size_t start = 0) const noexcept
+        constexpr size_t find(const StringViewBase<T, M> &str, size_t start = 0) const noexcept
         {
-            if ((start + substr.size()) >= this->p_size) {
+            if ((start + str.size()) >= this->p_size) {
                 return -1;
             }
 
-            auto end = this->p_size - substr.size();
+            auto end = this->p_size - str.size();
             for (auto n = start; n < end; ++n) {
-                if (substr == slice(n, substr.size())) {
+                if (str == substr(n, str.size())) {
                     return n;
                 }
             }
@@ -250,51 +297,6 @@ namespace c_common
 
         constexpr void remove_prefix(size_t count) noexcept { this->ChopStart(count); }
         constexpr void remove_suffix(size_t count) noexcept { this->ChopEnd(count); }
-
-        template <typename MM>
-        bool operator==(const StringViewBase<T, MM> &other) const noexcept
-        {
-            if (this->p_size != other.size()) {
-                return false;
-            }
-            return memcmp(this->p_data, other.data(), this->p_size * sizeof(T)) == 0;
-        }
-
-        template <typename MM>
-        bool operator!=(const StringViewBase<T, MM> &other) const noexcept
-        {
-            if (this->p_size != other.size()) {
-                return true;
-            }
-            return memcmp(this->p_data, other.data(), this->p_size * sizeof(T)) != 0;
-        }
-
-        template <size_t length>
-        constexpr bool operator==(const T(&text)[length]) const noexcept
-        {
-            return *this == StringViewBase<T>(text);
-        }
-
-        template <typename MM>
-        bool operator<(const StringViewBase<T, MM> &other) const noexcept
-        {
-            auto minsize = this->p_size;
-            if (other.size() < minsize) {
-                minsize = other.size();
-            }
-
-            auto res = memcmp(this->p_data, other.data(), minsize * sizeof(T));
-
-            if (res < 0) {
-                return true;
-            }
-
-            if (res == 0) {
-                return this->p_size < other.size();
-            }
-
-            return false;
-        }
 
     private:
         using Span<T, M>::ChopStart;

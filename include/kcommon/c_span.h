@@ -11,6 +11,7 @@
 #pragma once
 
 #include <cassert>
+#include <initializer_list>
 
 
 namespace c_common

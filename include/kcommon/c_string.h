@@ -442,6 +442,8 @@ namespace c_common
         const T *data() const { return this->p_data; }
         T *data() { return this->p_data; }
 
+        size_t capacity() const { return p_capacity; }
+
 
         MutableStringBase<T, N> &operator+=(T ch)
         {
@@ -454,7 +456,7 @@ namespace c_common
         template <typename M>
         MutableStringBase<T, N> &operator+=(const StringViewBase<T, M> &str)
         {
-            reserve(this->actualsize(this->p_size + 1));
+            reserve(this->actualsize(this->p_size + str.size()));
 
             memcpy(
                 this->p_data + this->p_size, str.data(),
@@ -598,7 +600,7 @@ namespace c_common
 
         void erase(size_t from, size_t count)
         {
-            assert(from + count <= this->p_size);
+            assert((from + count) <= this->p_size);
 
             memmove(
                 this->p_data + from, this->p_data + from + count,
