@@ -38,6 +38,7 @@ namespace c_common
         }
 
     public:
+        constexpr const T *data() const noexcept { return p_buffer; }
         constexpr size_t size() const noexcept { return p_size; }
         constexpr size_t capacity() const noexcept { return p_capacity; }
 
@@ -155,7 +156,7 @@ namespace c_common
                 ++size;
             }
 
-            while (value > 0) {
+            while (value > 0 && n > 0) {
                 auto d = value % 10;
                 buffer[--n] = T(d) + '0';
                 ++size;
@@ -211,6 +212,10 @@ namespace c_common
                 size++;
             }
 
+            if (p_precision == 0) {
+                return;
+            }
+
             *p++ = '.';
             size++;
 
@@ -231,19 +236,21 @@ namespace c_common
             digits = size_t(0);
             ToString(p, 16, digits, (unsigned long long)(fraction * 10e15));
 
-            if (p_precision == -1) {
-                for (auto n = 0u; n < (16 - digits); ++n) {
-                    *p++ = '0';
-                    size++;
-                }
-            } else if (digits > p_precision) {
-                memmove(p, p + 16 - digits, digits * sizeof(T));
-                digits = p_precision;
-            } else {
-                memmove(p + p_precision - digits, p + 16 - digits, digits * sizeof(T));
-                while (digits < p_precision) {
-                    *p++ = '0';
-                    digits++;
+            // fill leading fractional zeroes up to 16 digits
+            for (auto n = 0u; n < (16 - digits); ++n) {
+                *p++ = '0';
+            }
+
+            if (p_precision != -1) {
+                if (p_precision < 16) {
+                    digits = p_precision;
+                } else {
+                    digits = 16;
+                    p += digits;
+                    while (digits < p_precision) {
+                        *p++ = '0';
+                        digits++;
+                    }
                 }
             }
 
