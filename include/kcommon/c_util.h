@@ -390,7 +390,7 @@ namespace c_util
 
     UF T mix(const T a, const T b, const T factor)
     {
-        return a * (T(1) - factor) + b * factor;
+        return a + (b - a) * factor;
     }
 
     UF T muldiv(const T m1, const T m2, const T d)
