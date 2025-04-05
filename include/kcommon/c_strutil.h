@@ -212,6 +212,10 @@ namespace c_common
             resultval = pow(result, exp);
         }
 
+        if (neg) {
+            resultval = -resultval;
+        }
+
         result = resultval;
         return true;
     }

@@ -122,4 +122,7 @@ namespace c_common
         typename M::storage_type *p_data;
         size_t                    p_size;
     };
+
+    template <typename T>
+    using MutableSpan = Span<T, MutableSpanData<T>>;
 }
