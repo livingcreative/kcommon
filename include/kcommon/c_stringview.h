@@ -132,12 +132,12 @@ namespace c_common
 
         StringViewReverseIterator<typename M::interface_type> rbegin() const noexcept
         {
-            return { end() - 1 };
+            return { this->end() - 1 };
         }
 
         StringViewReverseIterator<typename M::interface_type> rend() const noexcept
         {
-            return { begin() - 1 };
+            return { this->begin() - 1 };
         }
 
         constexpr StringViewBase<T, M> substr(size_t start) const noexcept
@@ -148,15 +148,15 @@ namespace c_common
         constexpr StringViewBase<T, M> substr(size_t start, size_t size) const noexcept
         {
             // as c++ is utter shit this is copypasta from Slice
-            if (start >= p_size) {
+            if (start >= this->p_size) {
                 return {};
             }
 
-            if ((start + size) > p_size) {
-                size = p_size - start;
+            if ((start + size) > this->p_size) {
+                size = this->p_size - start;
             }
 
-            return StringViewBase<T, M>(p_data + start, size);
+            return StringViewBase<T, M>(this->p_data + start, size);
         }
 
         constexpr size_t find(T ch, size_t start = 0) const noexcept
@@ -232,24 +232,24 @@ namespace c_common
             return -1;
         }
 
-        constexpr StringViewBase<T, M> trim(size_t size) const noexcept { return slice(0, size); }
-        constexpr StringViewBase<T, M> rtrim(size_t size) const noexcept { return slice(this->p_size - size, size); }
+        constexpr StringViewBase<T, M> trim(size_t size) const noexcept { return this->slice(0, size); }
+        constexpr StringViewBase<T, M> rtrim(size_t size) const noexcept { return this->slice(this->p_size - size, size); }
 
         constexpr StringViewBase<T, M> trim() const noexcept
         {
             auto f = firstnonspace();
             auto l = lastnonspace();
-            return slice(f, l - f + 1);
+            return this->slice(f, l - f + 1);
         }
 
         constexpr StringViewBase<T, M> ltrim() const noexcept
         {
-            return slice(firstnonspace());
+            return this->slice(firstnonspace());
         }
 
         constexpr StringViewBase<T, M> rtrim() const noexcept
         {
-            return slice(0, lastnonspace() + 1);
+            return this->slice(0, lastnonspace() + 1);
         }
 
         constexpr size_t firstnonspace() const noexcept

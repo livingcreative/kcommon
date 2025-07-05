@@ -132,8 +132,8 @@ namespace c_common
     template <typename T>
     struct ImmutableStringData final
     {
-        using interface_type = typename const T;
-        using storage_type = typename T;
+        using interface_type = const T;
+        using storage_type = T;
     };
 
     template <typename T, typename N = StringExcludeNull>
@@ -279,7 +279,8 @@ namespace c_common
                 return;
             }
 
-            this->p_data = new T[calcalloc(this->actualsize(size))];
+            auto alloccount = calcalloc(this->actualsize(size));
+            this->p_data = new T[alloccount];
             this->p_size = size;
         }
 

@@ -52,7 +52,7 @@ namespace c_common
         void Write(const T *data, size_t size)
         {
             auto reqsize = size;
-            if (p_width != -1 && p_width > reqsize) {
+            if (p_width != unsigned(-1) && p_width > reqsize) {
                 reqsize = p_width;
             }
 
@@ -163,7 +163,7 @@ namespace c_common
                 value /= 10;
             }
 
-            if (p_width != -1 && size < p_width) {
+            if (p_width != unsigned(-1) && size < p_width) {
                 while (n > 0 && size < p_width) {
                     buffer[--n] = p_numberfill;
                     ++size;

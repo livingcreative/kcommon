@@ -19,15 +19,15 @@ namespace c_common
     template <typename T>
     struct ImmutableSpanData final
     {
-        using interface_type = typename const T;
-        using storage_type = typename const T;
+        using interface_type = const T;
+        using storage_type = const T;
     };
 
     template <typename T>
     struct MutableSpanData final
     {
-        using interface_type = typename T;
-        using storage_type = typename T;
+        using interface_type = T;
+        using storage_type = T;
     };
 
 
@@ -56,7 +56,7 @@ namespace c_common
         {}
 
         constexpr Span(const std::initializer_list<T> &source) noexcept :
-            p_data(std::data(source)),
+            p_data(std::begin(source)),
             p_size(source.size())
         {}
 
