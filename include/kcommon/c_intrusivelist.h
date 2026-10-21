@@ -50,7 +50,7 @@ namespace c_common
 
             ForwardIterator &operator++()
             {
-                p_current = intrusiveT::next(p_current);
+                this->p_current = intrusiveT::next(this->p_current);
                 return *this;
             }
         };
@@ -68,13 +68,13 @@ namespace c_common
 
             BackwardIterator &operator++()
             {
-                p_current = intrusiveT::prev(p_current);
+                this->p_current = intrusiveT::prev(this->p_current);
                 return *this;
             }
         };
 
     public:
-        IntrusiveList() :
+        IntrusiveList() noexcept :
             p_firstchild(nullptr),
             p_lastchild(nullptr),
             p_count(0)
@@ -83,7 +83,7 @@ namespace c_common
         IntrusiveList(const IntrusiveList &source) = delete;
         IntrusiveList &operator=(const IntrusiveList &source) = delete;
 
-        IntrusiveList(const IntrusiveList &&source) :
+        IntrusiveList(const IntrusiveList &&source) noexcept :
             p_firstchild(source.p_firstchild),
             p_lastchild(source.p_lastchild),
             p_count(source.p_count)
@@ -93,7 +93,7 @@ namespace c_common
             source.p_count = 0;
         }
 
-        IntrusiveList &operator=(IntrusiveList &&source)
+        IntrusiveList &operator=(IntrusiveList &&source) noexcept
         {
             p_firstchild = source.p_firstchild;
             p_lastchild = source.p_lastchild;
@@ -180,7 +180,7 @@ namespace c_common
     public:
         struct Links
         {
-            Links() :
+            Links() noexcept :
                 prevsibling(nullptr),
                 nextsibling(nullptr)
             {}
