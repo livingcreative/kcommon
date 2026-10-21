@@ -50,4 +50,11 @@
             <Item Name="height">bottom - top</Item>
         </Expand>
     </Type>
+    <Type Name="c_common::Span&lt;*&gt;" Inheritable="true">
+        <DisplayString>{p_data,[p_size]na} ({p_size})</DisplayString>
+        <Expand>
+            <Item Name="data">p_data</Item>
+            <Item Name="size">p_size</Item>
+        </Expand>
+    </Type>
 </AutoVisualizer>

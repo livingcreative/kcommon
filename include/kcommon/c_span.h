@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <memory>
 #include <cassert>
 #include <initializer_list>
 
@@ -79,6 +80,8 @@ namespace c_common
 
         constexpr data_type *data() const noexcept { return p_data; }
         constexpr size_t size() const noexcept { return p_size; }
+        constexpr size_t count() const noexcept { return p_size; }
+        constexpr size_t bytesize() const noexcept { return p_size * sizeof(T); }
 
         constexpr Span<T, M> slice(size_t start) const noexcept
         {
@@ -98,22 +101,40 @@ namespace c_common
             return Span<T, M>(p_data + start, size);
         }
 
+        template <typename MM>
+        bool operator==(const Span<T, MM> &other) const noexcept
+        {
+            if (this->p_size != other.size()) {
+                return false;
+            }
+            return memcmp(this->p_data, other.data(), this->p_size * sizeof(T)) == 0;
+        }
+
+        template <typename MM>
+        bool operator!=(const Span<T, MM> &other) const noexcept
+        {
+            if (this->p_size != other.size()) {
+                return true;
+            }
+            return memcmp(this->p_data, other.data(), this->p_size * sizeof(T)) != 0;
+        }
+
         data_type &at(size_t index) const { assert(index < p_size); return p_data[index]; }
         data_type &operator[](size_t index) const { assert(index < p_size); return p_data[index]; }
         data_type &front() const { assert(p_size); return *p_data; }
         data_type &back() const { assert(p_size); return *(p_data + p_size - 1); }
 
-        void ChopStart(size_t count)
+        void ChopStart(size_t count) noexcept
         {
-            if (count < p_size) {
+            if (count <= p_size) {
                 p_data += count;
                 p_size -= count;
             }
         }
 
-        void ChopEnd(size_t count)
+        void ChopEnd(size_t count) noexcept
         {
-            if (count < p_size) {
+            if (count <= p_size) {
                 p_size -= count;
             }
         }

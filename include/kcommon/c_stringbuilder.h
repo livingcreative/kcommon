@@ -19,13 +19,15 @@ namespace c_common
     class StringBuilderStaticReallocator
     {
     public:
-        static void Resize(T* &buffer, size_t &capacity, size_t size) {}
+        static void Resize(T* &buffer, size_t &capacity, size_t size, bool preserve) {}
     };
 
     template <typename T, typename N = StringExcludeNull, typename R = StringBuilderStaticReallocator<T>>
     class StringBuilderBase
     {
     protected:
+        using reallocator_t = typename R;
+
         constexpr StringBuilderBase(T *buffer, size_t capacity = 0) noexcept :
             p_buffer(buffer),
             p_size(0),
@@ -38,6 +40,9 @@ namespace c_common
         }
 
     public:
+        StringBuilderBase(const StringBuilderBase &) = delete;
+        StringBuilderBase &operator=(const StringBuilderBase &) = delete;
+
         constexpr const T *data() const noexcept { return p_buffer; }
         constexpr size_t size() const noexcept { return p_size; }
         constexpr size_t capacity() const noexcept { return p_capacity; }
@@ -56,7 +61,7 @@ namespace c_common
                 reqsize = p_width;
             }
 
-            R::Resize(p_buffer, p_capacity, p_size + reqsize);
+            R::Resize(p_buffer, p_capacity, p_size + reqsize, true);
 
             if (p_size >= (p_capacity - N::NULL_LEN)) {
                 return;
@@ -144,6 +149,30 @@ namespace c_common
         void width(unsigned w)
         {
             p_width = w;
+        }
+
+        void textfill(T c)
+        {
+            p_textfill = c;
+        }
+
+        void numberfill(T c)
+        {
+            p_numberfill = c;
+        }
+
+        void remove_trailing(T c)
+        {
+            if (p_size && p_buffer[p_size - 1] == c) {
+                p_size--;
+            }
+        }
+
+        void remove_trailing(const StringViewBase<T> &chars)
+        {
+            if (text().endswith(chars)) {
+                p_size -= chars.length();
+            }
         }
 
     protected:
@@ -432,13 +461,20 @@ namespace c_common
     class StringBuilderDefaultReallocator
     {
     public:
-        static void Resize(T* &buffer, size_t &capacity, size_t size)
+        static void Resize(T* &buffer, size_t &capacity, size_t size, bool preserve)
         {
             if (size > capacity) {
-                auto newcapacity = capacity + 1024;
+                constexpr auto alignment = (1024 - 1);
+
+                // TODO use memory manager realloc to avoid copy if
+                //      realloc can be done inplace
+
+                auto newcapacity = (capacity + size + alignment) & ~alignment;
                 auto newbuffer = new T[newcapacity];
 
-                memcpy(newbuffer, buffer, capacity * sizeof(T));
+                if (preserve) {
+                    memcpy(newbuffer, buffer, capacity * sizeof(T));
+                }
 
                 delete[] buffer;
 
@@ -460,6 +496,43 @@ namespace c_common
         ~DynamicStringBuilderBase()
         {
             delete[] this->p_buffer;
+        }
+
+
+        DynamicStringBuilderBase(DynamicStringBuilderBase<T, N> &&other) noexcept :
+            StringBuilderBase<T, N, StringBuilderDefaultReallocator<T>>(other.p_buffer, other.p_capacity)
+        {
+            other.p_buffer = nullptr;
+            other.p_size = 0;
+            other.p_capacity = 0;
+        }
+
+        DynamicStringBuilderBase<T, N> &operator=(DynamicStringBuilderBase<T, N> &&other) noexcept
+        {
+            this->p_buffer = other->p_buffer;
+            this->p_size = other->p_size;
+            this->p_capacity = other->p_capacity;
+
+            other.p_buffer = nullptr;
+            other.p_size = 0;
+            other.p_capacity = 0;
+
+            return *this;
+        }
+
+
+        void reserve(size_t capacity)
+        {
+            if (capacity > this->p_capacity) {
+                reallocator_t::Resize(this->p_buffer, this->p_capacity, capacity, true);
+            }
+        }
+
+        void reservenopreserve(size_t capacity)
+        {
+            if (capacity > this->p_capacity) {
+                reallocator_t::Resize(this->p_buffer, this->p_capacity, capacity, false);
+            }
         }
 
         StringBase<T, N> MoveToString()
@@ -501,9 +574,24 @@ namespace c_common
 
 
     template <typename T, typename N = StringExcludeNull>
-    class BakedStringBuilderBase : public StringBuilderBase<T, N, StringBuilderDefaultReallocator<T>>
+    class BakedStringBuilderBase : public StringBuilderBase<T, N>
     {
     public:
-        // TODO
+        BakedStringBuilderBase(T *storage, size_t capacity) :
+            StringBuilderBase<T, N>(storage, capacity)
+        {}
+
+        template <size_t count>
+        BakedStringBuilderBase(T (&storage)[count]) :
+            StringBuilderBase<T, N>(storage, count)
+        {}
     };
+
+
+    using BakedStringBuilder = BakedStringBuilderBase<char>;
+    using BakedStringBuilderW = BakedStringBuilderBase<wchar_t>;
+    using BakedStringBuilder32 = BakedStringBuilderBase<char32_t>;
+    using BakedStringBuilderNT = BakedStringBuilderBase<char, StringIncludeNull>;
+    using BakedStringBuilderWNT = BakedStringBuilderBase<wchar_t, StringIncludeNull>;
+    using BakedStringBuilder32NT = BakedStringBuilderBase<char32_t, StringIncludeNull>;
 }

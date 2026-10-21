@@ -295,7 +295,7 @@ namespace c_common
             }
 
             if (this->p_size >= this->actualsize(size)) {
-                // TODO reallocate if diff is too large
+                // TODO reallocate down if diff is too large
                 this->p_size = size;
                 return;
             }
@@ -317,6 +317,11 @@ namespace c_common
             this->p_data = data;
             this->p_size = size;
         }
+
+    private:
+        using StringViewBase<T, ImmutableStringData<T>>::remove_suffix;
+        using StringViewBase<T, ImmutableStringData<T>>::remove_trailing;
+        using StringViewBase<T, ImmutableStringData<T>>::remove_all_trailing;
     };
 
     using String = StringBase<char>;
@@ -444,6 +449,7 @@ namespace c_common
         T *data() { return this->p_data; }
 
         size_t capacity() const { return p_capacity; }
+        size_t bytecapacity() const { return p_capacity * sizeof(T); }
 
 
         MutableStringBase<T, N> &operator+=(T ch)
@@ -492,11 +498,25 @@ namespace c_common
             Reserve(capacity, true);
         }
 
+        void reservenopreserve(size_t capacity)
+        {
+            Reserve(capacity, false);
+        }
+
         void resize(size_t newsize)
         {
             auto actualnewsize = this->actualsize(newsize);
             if (actualnewsize > p_capacity) {
                 reserve(calccapacity(actualnewsize));
+            }
+            this->p_size = newsize;
+        }
+
+        void resizenopreserve(size_t newsize)
+        {
+            auto actualnewsize = this->actualsize(newsize);
+            if (actualnewsize > p_capacity) {
+                Reserve(calccapacity(actualnewsize), false);
             }
             this->p_size = newsize;
         }
@@ -614,6 +634,18 @@ namespace c_common
         {
             this->p_size = 0;
             this->EnsureNull();
+        }
+
+        void remove_prefix(size_t count) noexcept
+        {
+            if (this->p_size == count) {
+                this->p_size = 0;
+                return;
+            }
+
+            if (this->p_size <= count) {
+                this->erase(0, count);
+            }
         }
 
         // std compatibility slop

@@ -11,7 +11,6 @@
 #pragma once
 
 #include "c_span.h"
-#include <memory>
 
 
 namespace c_common
@@ -54,6 +53,10 @@ namespace c_common
     public:
         constexpr StringViewBase() noexcept :
             Span<T, M>()
+        {}
+
+        constexpr StringViewBase(Span<T, M> source) noexcept :
+            Span<T, M>(source.data(), source.size())
         {}
 
         constexpr StringViewBase(typename M::storage_type *data, size_t size) noexcept :
@@ -106,6 +109,12 @@ namespace c_common
             return *this == StringViewBase<T>(text);
         }
 
+        template <size_t length>
+        constexpr bool operator!=(const T(&text)[length]) const noexcept
+        {
+            return *this != StringViewBase<T>(text);
+        }
+
         template <typename MM>
         bool operator<(const StringViewBase<T, MM> &other) const noexcept
         {
@@ -128,7 +137,9 @@ namespace c_common
         }
 
 
-        size_t length() const { return this->p_size; }
+        size_t length() const noexcept { return this->p_size; }
+        T front_safe() const noexcept { return this->p_size ? this->p_data[0] : 0; }
+        T back_safe() const noexcept { return this->p_size ? this->p_data[this->p_size - 1] : 0; }
 
         StringViewReverseIterator<typename M::interface_type> rbegin() const noexcept
         {
@@ -191,7 +202,7 @@ namespace c_common
             return -1;
         }
 
-        constexpr bool contains(T rangestart, T rangeend) const noexcept
+        constexpr bool containsrange(T rangestart, T rangeend) const noexcept
         {
             for (auto c : *this) {
                 if (c >= rangestart && c <= rangeend) {
@@ -202,9 +213,26 @@ namespace c_common
             return false;
         }
 
+        constexpr bool contains(T ch, size_t start = 0) const noexcept
+        {
+            return find(ch, start) != -1;
+        }
+
         constexpr bool contains(const StringViewBase<T, M> &substr, size_t start = 0) const noexcept
         {
             return find(substr) != -1;
+        }
+
+        constexpr bool containsindex(T ch, size_t &index, size_t start = 0) const noexcept
+        {
+            index = find(ch, start);
+            return index != -1;
+        }
+
+        constexpr bool containsindex(const StringViewBase<T, M> &substr, size_t &index, size_t start = 0) const noexcept
+        {
+            index = find(substr);
+            return index != -1;
         }
 
         constexpr size_t rfind(T ch) const noexcept { return rfind(ch, this->p_size); }
@@ -230,6 +258,24 @@ namespace c_common
         constexpr size_t rfind(const StringViewBase<T, M> &substr, size_t end) const noexcept
         {
             return -1;
+        }
+
+        constexpr StringViewBase<T, M> slice(size_t start) const noexcept
+        {
+            return slice(start, this->p_size - start);
+        }
+
+        constexpr StringViewBase<T, M> slice(size_t start, size_t size) const noexcept
+        {
+            if (start >= this->p_size) {
+                return {};
+            }
+
+            if ((start + size) > this->p_size) {
+                size = this->p_size - start;
+            }
+
+            return StringViewBase<T, M>(this->p_data + start, size);
         }
 
         constexpr StringViewBase<T, M> trim(size_t size) const noexcept { return this->slice(0, size); }
@@ -287,16 +333,45 @@ namespace c_common
 
         constexpr bool startswith(const StringViewBase<T, M> &other) const noexcept
         {
-            return slice(0, other.size()) == other;
+            return this->slice(0, other.size()) == other;
         }
 
         constexpr bool endswith(const StringViewBase<T, M> &other) const noexcept
         {
-            return slice(this->p_size - other.size(), other.size()) == other;
+            return this->slice(this->p_size - other.size(), other.size()) == other;
         }
 
         constexpr void remove_prefix(size_t count) noexcept { this->ChopStart(count); }
         constexpr void remove_suffix(size_t count) noexcept { this->ChopEnd(count); }
+
+        constexpr void remove_trailing(T val) noexcept
+        {
+            if (this->p_size > 0 && this->back() == val) {
+                this->p_size--;
+            }
+        }
+
+        constexpr void remove_trailing(const StringViewBase<T, M> &chars) noexcept
+        {
+            if (this->endswith(chars)) {
+                this->p_size -= chars.length();
+            }
+        }
+
+        constexpr void remove_all_trailing(T val) noexcept
+        {
+            while (this->p_size > 0 && this->back() == val) {
+                this->p_size--;
+            }
+        }
+
+        constexpr void remove_all_trailing(const StringViewBase<T, M> &chars) noexcept
+        {
+            while (this->endswith(chars)) {
+                this->p_size -= chars.length();
+            }
+        }
+
 
     private:
         using Span<T, M>::ChopStart;

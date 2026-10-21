@@ -63,7 +63,7 @@ namespace c_common
     template <typename T>
     bool ParseIntT(const StringViewBase<T> &text, int &result, int defaultval = 0) noexcept
     {
-        auto resultval = defaultval;
+        auto resultval = 0;
         auto p = text.begin();
         auto e = text.end();
 

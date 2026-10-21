@@ -93,7 +93,12 @@ namespace c_util
 
     // create new pointer from existing one and byte offset to it
     //     now you don't need to cast void* or other pointers to get byte offsets!
-    UF T getp(T pointer, int offset);
+    UF T *getp(T *pointer, int offset);
+    // get pointer to an element as if base address was nullptr
+    UF T *nullp(size_t element = 0);
+    // rebase nullptr based pointer
+    UF T *rebasenullp(T *newbase, T *ptr);
+    UF const T *rebasenullp(T *newbase, const T *ptr);
 
     // "align" value
     UF T align(T value, T alignment);
@@ -495,11 +500,26 @@ namespace c_util
         typedef const C *type;
     };
 
-    UF T getp(T pointer, int offset)
+    UF T *getp(T *pointer, int offset)
     {
-        return reinterpret_cast<T>(
-            reinterpret_cast<typename inherit_const<T, char>::type>(pointer) + offset
+        return reinterpret_cast<T*>(
+            reinterpret_cast<typename inherit_const<T*, char>::type>(pointer) + offset
         );
+    }
+
+    UF T *nullp(size_t element)
+    {
+        return reinterpret_cast<T*>(nullptr) + element;
+    }
+
+    UF T *rebasenullp(T *newbase, T *ptr)
+    {
+        return newbase + (ptr - nullp<T>());
+    }
+
+    UF const T *rebasenullp(T *newbase, const T *ptr)
+    {
+        return newbase + (ptr - nullp<const T>());
     }
 
     UF T align(T value, T alignment)
